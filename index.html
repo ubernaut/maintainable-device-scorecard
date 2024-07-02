@@ -1,0 +1,77 @@
+<style>
+.question {
+  border:1px solid black;
+  padding:3px;
+}
+</style>
+<html>
+
+<head>
+  <script type="text/javascript" src="questions.json"></script>
+  <script type="module">
+    
+    const list = document.querySelector("#list-container");
+    const question_template = document.querySelector("#question-row");     
+    let i=0;    
+    questions.forEach((q)=>{
+      i++;
+      let question = question_template.content.cloneNode(true);      
+      let container=question.querySelector("#question-div-row");
+      container.id="question-"+i;
+      let label = question.querySelector("#question-label-row");
+      label.id="question-label-"+i;
+      label.innerHTML=q.question;
+      
+      let weight = question.querySelector("#weight-row");
+      weight.id="weight-row-"+i;
+
+      let NA = question.querySelector("#NA-row");
+      NA.id="NA-row-"+i;
+
+      let score = question.querySelector("#score-row");
+      score.id="score-row-"+i;
+
+      let notes = question.querySelector("#notes-row");
+      notes.id="notes-row-"+i;
+
+      list.appendChild(question);
+    })
+  </script>
+  <title>device scorecard</title>
+</head>
+
+<body>
+  <h2>device scorecard</h2>
+  <div id="list-container">    
+      
+
+  </div>
+    <template id="question-row">
+      <div id="question-div-row" class="question">
+        <div>
+            <label id="question-label-row">
+              
+            </label>
+        </div>
+        <div>
+          weight: 
+          <input id="weight-row" class="weight" type="number" oninput="this.value = Math.round(this.value);" value="0" min="0" max="10" />
+        </div>
+        <div>
+          N/A:
+          <input id="NA-row" class="NA" type ="checkbox">
+        </div>
+        <div>
+          score:
+          <input id="score-row" class="score" type="number" oninput="this.value = Math.round(this.value);" value="0" min="0" max="10" />
+        </div>
+        <div>
+          notes:Link to documentation and/or explanation: 
+          <br/>
+          <input id="notes-row" type="text" class="notes"/>
+        </div>
+      </div>    
+    </template>
+</body>
+
+</html>
