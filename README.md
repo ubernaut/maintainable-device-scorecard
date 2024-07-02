@@ -10,6 +10,8 @@ Submit PRs if you want to suggest more.
 
 if there is interest I might develop this into some kind of a wiki (which is why there is some source code in this repo) 
 
+Ultimately it's my hope that if enough people considered these questions when making a technology purchase more manufacturers would care and we could make the world a better place through culture and demand rather than heavy handed and ill conceived regulation. 
+
 ## questions:
 
 Is there an open or available API with documentation for end user use?
