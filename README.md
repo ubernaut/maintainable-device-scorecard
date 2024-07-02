@@ -1,14 +1,14 @@
 # maintainable-device-scorecard
 
-our situation is that of a small organization with thousands of devices spread out in remote areas that run as long as possible before replacement ( decades).  Security and IT standards change rapidly and perpetually in our parent organization and many required standards didn't even exist when our initial devices were installed. We can't visit these devices to perform updates until a failure occurs So upgrades must be performed extremely carefully over the net. 
-
 This list is intended to help you determine how well your team will be able to support, maintain, and service a device in an ever changing landscape of requirements and integrations. 
 
-Even reading through these yourself may help you think through the potential scenarios down the road while trying to troubleshoot issues, deal with new security compliance requirements, or integrate with technology you aren't aware of yet. Personally I've started to ask these questions for nearly every device I buy and I've gotten far more satisfaction and value out of the devices that score well in this scorecard. you should rank each of these on a 1-10 scale depending on how well it meets the requirement. 
+our situation is that of a small group (fewer than 30) with thousands of devices spread out in remote areas that run as long as possible before replacement (sometimes decades).  Security and IT standards change rapidly and perpetually in our parent organization and many required standards didn't even exist when our earlier devices were installed. We can't visit these devices to perform updates until a failure occurs So upgrades must be performed extremely carefully over the net. We are planning a long awaited technology refresh for our baseline remote system configuration and this list is the result of my meditatinos on what our criteria should be. 
+
+Reading through these yourself may help you realize unanticipated scenarios down the road while trying to troubleshoot issues, deal with new security compliance requirements, or integrate with technology you aren't aware of yet. Personally I've started to ask these questions for nearly every device I buy and I've gotten far more satisfaction and value out of the devices that score well in this scorecard. you should rank each of these on a 1-10 scale depending on how well it meets the question. 
 
 Submit PRs if you want to suggest more. 
 
- 
+if there is interest I might develop this into some kind of a wiki (which is why there is some source code in this repo) 
 
 ## questions:
 
@@ -59,3 +59,5 @@ Does the device have a secure supply chain?
 Are cad files or detailed hardware specs available to support modifications and repair?
 
 Does documentation exist for each of the relevant items above?
+
+ipV6 support?
