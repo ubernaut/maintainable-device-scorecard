@@ -1,8 +1,18 @@
 # maintainable-device-scorecard
 
-A simple way to score and rank the maintainability of devices and hardware
+our situation is that of a small organization with thousands of devices spread out in remote areas that run as long as possible before replacement ( decades).  Security and IT standards change rapidly and perpetually in our parent organization and many required standards didn't even exist when our initial devices were installed. We can't visit these devices to perform updates until a failure occurs So upgrades must be performed extremely carefully over the net. 
 
-Open API with documentation?
+This list is intended to help you determine how well your team will be able to support, maintain, and service a device in an ever changing landscape of requirements and integrations. 
+
+Even reading through these yourself may help you think through the potential scenarios down the road while trying to troubleshoot issues, deal with new security compliance requirements, or integrate with technology you aren't aware of yet. Personally I've started to ask these questions for nearly every device I buy and I've gotten far more satisfaction and value out of the devices that score well in this scorecard. you should rank each of these on a 1-10 scale depending on how well it meets the requirement. 
+
+Submit PRs if you want to suggest more. 
+
+ 
+
+## questions:
+
+Is there an open or available API with documentation for end user use?
 
 Can the device be configured with human readable text files that can be managed independently?
 
@@ -30,9 +40,9 @@ Does the device send data to the manufacturer or third parties?
 
 Does this device depend on remote/cloud infrastructure for operation?
 
-Does this device depend on cloud infrastructure the end user cannot control, replace, or run on their own? (0-9)
+Does this device depend on cloud infrastructure the end user cannot control, replace, or run on their own? 
 
-Does this device require you to install a mobile app to configure or manage it? ( 0-9)
+Does this device require you to install a mobile app to configure or manage it? 
 
 Can the device be repaired or upgraded with modular electronic components?
 
