@@ -24,7 +24,7 @@ Can the device be configured over a web interface hosted directly on the device?
 
 Can configurations be deployed to a fleet of devices en-masse?
 
-Can configureations be deployed to a device through a simple provisioning process?
+Can configurations be deployed to a device through a simple provisioning process?
 
 Can the device run self tests and roll back configurations that fail?
 
