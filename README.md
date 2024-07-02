@@ -30,7 +30,7 @@ Can the device run self tests and roll back configurations that fail?
 
 If the device supports authentication, can it be configured to use a domain authenticator/ oauth?
 
-Does this device produce data in a standard format (JSON, CSV, XML etc.) or provide documentation for parsing their custom format? (full credit for human readable standard formats)
+Does this device produce data for its primary function in a standard format (JSON, CSV, XML etc.) or provide documentation for parsing their custom format? (full credit for human readable standard formats)
 
 Open Source firmware and/or software?
 
