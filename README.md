@@ -48,7 +48,7 @@ Does this device require you to install a mobile app to configure or manage it?
 
 Can the device be repaired or upgraded with modular electronic components?
 
-Does this device run a standard operating system that can be patched, upgraded, and modified by the end user (think security patching or configuration)?
+Does this device run a standard operating system that can be patched, upgraded, and modified by the end user (think security patching or configuration. Debian gets top marks for this.)?
 
 Open Source hardware specification (think RISC V)
 
