@@ -16,7 +16,7 @@ Ultimately it's my hope that if enough people considered these questions when ma
 
 Is there an open or available API with documentation for end user use?
 
-Can the device be configured with human readable text files that can be managed independently?
+Can the device be configured with human readable text files that can be deployed in an automated way?
 
 Can the device be configured over SSH?
 
@@ -24,7 +24,7 @@ Can the device be configured over a web interface hosted directly on the device?
 
 Can configurations be deployed to a fleet of devices en-masse?
 
-Can configurations be deployed to a device through a simple provisioning process?
+Can configurations be deployed to a device through a highly automated and simple provisioning process?
 
 Can the device run self tests and roll back configurations that fail?
 
@@ -32,25 +32,29 @@ If the device supports authentication, can it be configured to use a domain auth
 
 Does this device produce data for its primary function in a standard format (JSON, CSV, XML etc.) or provide documentation for parsing their custom format? (full credit for human readable standard formats)
 
-Open Source firmware and/or software?
+Is the operating system and/or firmware and/or software it runs open source? 
+
+Are there any proprietary software or drivers that are necessary for regular operation?
+
+If so what is the long term support commitment for updating the proprietary software for new operating systems and security patches?
 
 Can the firmware/software be obtained under another license/agreement on condition of NDA or similar legal agreement?
 
-Firmware and/or software that can be deployed and updated by the user.
+Can the firmware and/or software be deployed and updated by the user?
 
 Does the device send data to the manufacturer or third parties?
 
 Does this device depend on remote/cloud infrastructure for operation?
 
-Does this device depend on cloud infrastructure the end user cannot control, replace, or run on their own? 
+Does this device depend on cloud infrastructure the end user cannot control, replace, or run on their own?
 
-Does this device require you to install a mobile app to configure or manage it? 
+Does this device require you to install a mobile app to configure or manage it?
 
 Can the device be repaired or upgraded with modular electronic components?
 
-Does this device run a standard operating system that can be patched, upgraded, and modified by the end user (think security patching or configuration. Debian gets top marks for this.)?
+Does this device run a standard operating system that can be patched, upgraded, and modified by the end user? (think security patching or configuration. Debian or Ubuntu would get top marks for this.)
 
-Open Source hardware specification (think RISC V)
+Does the device use a Open Source hardware specification (think RISC V)? 
 
 What is the typical support lifetime by the manufacturer for software updates?
 
@@ -61,5 +65,3 @@ Does the device have a secure supply chain?
 Are cad files or detailed hardware specs available to support modifications and repair?
 
 Does documentation exist for each of the relevant items above?
-
-ipV6 support?
