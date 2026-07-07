@@ -528,6 +528,28 @@
         font-weight: 650;
       }
 
+      .question-content {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: start;
+      }
+
+      .question-text {
+        min-width: 0;
+      }
+
+      .question-help-button {
+        display: inline-grid;
+        width: 30px;
+        min-height: 30px;
+        place-items: center;
+        border-radius: 50%;
+        padding: 0;
+        font-size: 0.95rem;
+        line-height: 1;
+      }
+
       .na-cell {
         width: 84px;
         text-align: center;
@@ -717,6 +739,15 @@
         letter-spacing: 0;
       }
 
+      .dialog-kicker {
+        margin: 0 0 8px;
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
       .about-text p {
         margin: 0 0 1rem;
       }
@@ -859,6 +890,10 @@
           max-width: none;
         }
 
+        .question-content {
+          align-items: start;
+        }
+
         .na-cell,
         .range-cell,
         .points-cell {
@@ -967,12 +1002,7 @@
         );
         const explicitTheme =
           themeParam === "light" || themeParam === "dark" ? themeParam : null;
-        document.body.classList.add(
-          explicitTheme ??
-            (window.matchMedia("(prefers-color-scheme: dark)").matches
-              ? "dark"
-              : "light"),
-        );
+        document.body.classList.add(explicitTheme ?? "light");
       }
     </script>
     <div id="pageLoader" role="status" aria-live="polite">
@@ -1083,7 +1113,17 @@
     <template id="scorecard-row-template">
       <tr class="score-row">
         <td class="number-cell"></td>
-        <td class="question-cell"></td>
+        <td class="question-cell">
+          <div class="question-content">
+            <span class="question-text"></span>
+            <button
+              class="question-help-button secondary-button"
+              type="button"
+            >
+              ?
+            </button>
+          </div>
+        </td>
         <td class="na-cell">
           <span class="cell-label">Not applicable</span>
           <label class="checkbox-control">
@@ -1137,6 +1177,19 @@
         </td>
       </tr>
     </template>
+
+    <dialog id="question-help-dialog" aria-labelledby="question-help-title">
+      <div class="dialog-content">
+        <p class="dialog-kicker" id="question-help-category"></p>
+        <div class="dialog-header">
+          <h2 id="question-help-title"></h2>
+          <button type="button" id="close-question-help" class="secondary-button">
+            Close
+          </button>
+        </div>
+        <p id="question-help-text"></p>
+      </div>
+    </dialog>
 
     <dialog id="about-dialog" aria-labelledby="about-title">
       <div class="dialog-content">
@@ -1248,9 +1301,7 @@
       };
 
       const applyPreferredTheme = () => {
-        applyTheme(
-          explicitScorecardTheme ?? (colorSchemeQuery.matches ? "dark" : "light"),
-        );
+        applyTheme(explicitScorecardTheme ?? "light");
       };
 
       const triggerCrtEffect = (durationMs) => {
@@ -1390,6 +1441,15 @@
       const aboutDialog = document.querySelector("#about-dialog");
       const openAboutButton = document.querySelector("#open-about");
       const closeAboutButton = document.querySelector("#close-about");
+      const questionHelpDialog = document.querySelector("#question-help-dialog");
+      const questionHelpCategory = document.querySelector(
+        "#question-help-category",
+      );
+      const questionHelpTitle = document.querySelector("#question-help-title");
+      const questionHelpText = document.querySelector("#question-help-text");
+      const closeQuestionHelpButton = document.querySelector(
+        "#close-question-help",
+      );
       let currentTotals = {
         earned: 0,
         available: 0,
@@ -1623,6 +1683,20 @@
         setStatus(`Loaded ${file.name}.`);
       };
 
+      const openQuestionHelp = (item) => {
+        questionHelpCategory.textContent = item.category || "Scorecard item";
+        questionHelpTitle.textContent = item.question;
+        questionHelpText.textContent =
+          item.help ||
+          "Consider how this affects long-term operation, security, repair, and support for the device.";
+
+        if (typeof questionHelpDialog.showModal === "function") {
+          questionHelpDialog.showModal();
+        } else {
+          questionHelpDialog.setAttribute("open", "");
+        }
+      };
+
       const appendCategoryRow = (category) => {
         const row = document.createElement("tr");
         const header = document.createElement("th");
@@ -1653,7 +1727,17 @@
         const notesId = `notes-${rowNumber}`;
 
         row.querySelector(".number-cell").textContent = rowNumber;
-        row.querySelector(".question-cell").textContent = item.question;
+        row.querySelector(".question-text").textContent = item.question;
+
+        const helpButton = row.querySelector(".question-help-button");
+        helpButton.setAttribute(
+          "aria-label",
+          `Explain question ${rowNumber}: ${item.question}`,
+        );
+        helpButton.title = "Explain this question";
+        helpButton.addEventListener("click", () => {
+          openQuestionHelp(item);
+        });
 
         const naInput = row.querySelector(".na-input");
         naInput.id = naId;
@@ -1724,6 +1808,9 @@
         if (aboutDialog.open) {
           aboutDialog.close();
         }
+        if (questionHelpDialog.open) {
+          questionHelpDialog.close();
+        }
         window.print();
       });
 
@@ -1742,6 +1829,16 @@
       aboutDialog.addEventListener("click", (event) => {
         if (event.target === aboutDialog) {
           aboutDialog.close();
+        }
+      });
+
+      closeQuestionHelpButton.addEventListener("click", () => {
+        questionHelpDialog.close();
+      });
+
+      questionHelpDialog.addEventListener("click", (event) => {
+        if (event.target === questionHelpDialog) {
+          questionHelpDialog.close();
         }
       });
 
