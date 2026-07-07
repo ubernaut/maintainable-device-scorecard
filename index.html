@@ -65,6 +65,84 @@
         margin: -28px auto 56px;
       }
 
+      .setup-panel {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 20px;
+        align-items: end;
+        margin-bottom: 18px;
+        padding: 20px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .device-fields {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(180px, 1fr));
+        gap: 16px;
+      }
+
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+
+      .field label {
+        color: #30404d;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+
+      button {
+        min-height: 42px;
+        border: 1px solid var(--accent-strong);
+        border-radius: 6px;
+        background: var(--accent);
+        color: #ffffff;
+        cursor: pointer;
+        font: inherit;
+        font-weight: 750;
+        padding: 8px 14px;
+      }
+
+      button:hover {
+        background: var(--accent-strong);
+      }
+
+      button:focus-visible {
+        outline: 3px solid rgb(40 118 111 / 28%);
+        outline-offset: 2px;
+      }
+
+      .secondary-button {
+        border-color: var(--border-strong);
+        background: #ffffff;
+        color: var(--text);
+      }
+
+      .secondary-button:hover {
+        background: var(--surface-muted);
+      }
+
+      .status-message {
+        grid-column: 1 / -1;
+        min-height: 1.4em;
+        margin: -6px 0 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
       .score-panel {
         display: grid;
         grid-template-columns: 1fr auto;
@@ -236,6 +314,43 @@
         outline: 3px solid rgb(40 118 111 / 20%);
       }
 
+      dialog {
+        width: min(680px, calc(100% - 32px));
+        max-height: min(760px, calc(100% - 32px));
+        overflow: auto;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: 0 24px 80px rgb(31 45 61 / 32%);
+        color: var(--text);
+        padding: 0;
+      }
+
+      dialog::backdrop {
+        background: rgb(21 32 42 / 52%);
+      }
+
+      .dialog-content {
+        padding: 24px;
+      }
+
+      .dialog-header {
+        display: flex;
+        gap: 16px;
+        align-items: start;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+
+      .dialog-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        letter-spacing: 0;
+      }
+
+      .about-text p {
+        margin: 0 0 1rem;
+      }
+
       tfoot {
         background: #f9fbfa;
       }
@@ -278,6 +393,22 @@
           gap: 18px;
         }
 
+        .setup-panel {
+          grid-template-columns: 1fr;
+        }
+
+        .device-fields {
+          grid-template-columns: 1fr;
+        }
+
+        .actions {
+          justify-content: stretch;
+        }
+
+        .actions button {
+          flex: 1 1 150px;
+        }
+
         .meter {
           width: 100%;
           min-width: 0;
@@ -299,8 +430,15 @@
         }
 
         .score-panel,
+        .setup-panel,
         .table-wrap {
           box-shadow: none;
+        }
+
+        .actions,
+        .status-message,
+        dialog {
+          display: none;
         }
       }
     </style>
@@ -310,13 +448,47 @@
       <div class="hero">
         <h1>Maintainable Device Scorecard</h1>
         <p class="intro">
-          A practical scorecard for evaluating how well a device can be
-          supported, serviced, integrated, and updated over a long lifetime.
+          Use this worksheet to rate how maintainable a device will be over a
+          long service life. Assign each question an importance weight and a
+          device score from 1 to 10; the weighted total is normalized to 100
+          points.
         </p>
       </div>
     </header>
 
     <main>
+      <section class="setup-panel" aria-label="Device and file actions">
+        <div class="device-fields">
+          <div class="field">
+            <label for="device-make">Device make</label>
+            <input id="device-make" type="text" autocomplete="organization" />
+          </div>
+          <div class="field">
+            <label for="device-model">Device model</label>
+            <input id="device-model" type="text" autocomplete="off" />
+          </div>
+        </div>
+        <div class="actions">
+          <button type="button" id="save-json">Save JSON</button>
+          <button type="button" id="load-json" class="secondary-button">
+            Load JSON
+          </button>
+          <button type="button" id="print-scorecard" class="secondary-button">
+            Print
+          </button>
+          <button type="button" id="open-about" class="secondary-button">
+            About
+          </button>
+          <input
+            type="file"
+            id="json-file"
+            accept="application/json,.json"
+            hidden
+          />
+        </div>
+        <p class="status-message" id="status-message" aria-live="polite"></p>
+      </section>
+
       <section class="score-panel" aria-labelledby="score-title">
         <div>
           <p class="score-label" id="score-title">Weighted score</p>
@@ -399,6 +571,58 @@
       </tr>
     </template>
 
+    <dialog id="about-dialog" aria-labelledby="about-title">
+      <div class="dialog-content">
+        <div class="dialog-header">
+          <h2 id="about-title">About this scorecard</h2>
+          <button type="button" id="close-about" class="secondary-button">
+            Close
+          </button>
+        </div>
+        <div class="about-text">
+          <p>
+            This list is intended to help you determine how well your team will
+            be able to support, maintain, and service a device in an ever
+            changing landscape of requirements and integrations.
+          </p>
+          <p>
+            our situation is that of a small group (fewer than 30) with
+            thousands of devices spread out in remote areas that run as long as
+            possible before replacement (sometimes decades).  Security and IT
+            standards change rapidly and perpetually in our parent organization
+            and many required standards didn't even exist when our earlier
+            devices were installed. We can't visit these devices to perform
+            updates until a failure occurs So upgrades must be performed
+            extremely carefully over the net. We are planning a long awaited
+            technology refresh for our baseline remote system configuration and
+            this list is the result of my meditatinos on what our criteria
+            should be.
+          </p>
+          <p>
+            Reading through these yourself may help you realize unanticipated
+            scenarios down the road while trying to troubleshoot issues, deal
+            with new security compliance requirements, or integrate with
+            technology you aren't aware of yet. Personally I've started to ask
+            these questions for nearly every device I buy and I've gotten far
+            more satisfaction and value out of the devices that score well in
+            this scorecard. you should rank each of these on a 1-10 scale
+            depending on how well it meets the question.
+          </p>
+          <p>Submit PRs if you want to suggest more.</p>
+          <p>
+            if there is interest I might develop this into some kind of a wiki
+            (which is why there is some source code in this repo)
+          </p>
+          <p>
+            Ultimately it's my hope that if enough people considered these
+            questions when making a technology purchase more manufacturers would
+            care and we could make the world a better place through culture and
+            demand rather than heavy handed and ill conceived regulation.
+          </p>
+        </div>
+      </div>
+    </dialog>
+
     <script src="questions.js"></script>
     <script>
       const questions = window.scorecardQuestions || [];
@@ -409,6 +633,21 @@
       const earnedPoints = document.querySelector("#earned-points");
       const availablePoints = document.querySelector("#available-points");
       const scoreMeter = document.querySelector("#score-meter");
+      const deviceMake = document.querySelector("#device-make");
+      const deviceModel = document.querySelector("#device-model");
+      const saveJsonButton = document.querySelector("#save-json");
+      const loadJsonButton = document.querySelector("#load-json");
+      const printButton = document.querySelector("#print-scorecard");
+      const jsonFileInput = document.querySelector("#json-file");
+      const statusMessage = document.querySelector("#status-message");
+      const aboutDialog = document.querySelector("#about-dialog");
+      const openAboutButton = document.querySelector("#open-about");
+      const closeAboutButton = document.querySelector("#close-about");
+      let currentTotals = {
+        earned: 0,
+        available: 0,
+        normalizedScore: 0,
+      };
 
       const clampRating = (value) => {
         const parsed = Number.parseInt(value, 10);
@@ -420,6 +659,17 @@
 
       const formatNumber = (value) =>
         Number.isInteger(value) ? String(value) : value.toFixed(1);
+
+      const sanitizeFilenamePart = (value) =>
+        value
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "");
+
+      const setStatus = (message) => {
+        statusMessage.textContent = message;
+      };
 
       const calculateTotals = () => {
         let earned = 0;
@@ -446,6 +696,98 @@
         earnedPoints.textContent = formatNumber(earned);
         availablePoints.textContent = formatNumber(available);
         scoreMeter.style.width = `${Math.min(100, Math.max(0, normalizedScore))}%`;
+
+        currentTotals = {
+          earned,
+          available,
+          normalizedScore,
+        };
+      };
+
+      const collectScorecardData = () => ({
+        schema: "maintainable-device-scorecard",
+        version: 1,
+        savedAt: new Date().toISOString(),
+        device: {
+          make: deviceMake.value.trim(),
+          model: deviceModel.value.trim(),
+        },
+        total: {
+          score: Number(currentTotals.normalizedScore.toFixed(1)),
+          earned: currentTotals.earned,
+          available: currentTotals.available,
+        },
+        answers: Array.from(tableBody.querySelectorAll("tr")).map(
+          (row, index) => ({
+            index,
+            question: questions[index]?.question || "",
+            weight: clampRating(row.querySelector(".weight-input").value),
+            score: clampRating(row.querySelector(".score-input").value),
+            notes: row.querySelector(".notes-input").value.trim(),
+          }),
+        ),
+      });
+
+      const saveScorecardJson = () => {
+        const data = collectScorecardData();
+        const json = JSON.stringify(data, null, 2);
+        const blob = new Blob([json], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const filenameParts = [
+          "maintainable-device-scorecard",
+          sanitizeFilenamePart(data.device.make),
+          sanitizeFilenamePart(data.device.model),
+        ].filter(Boolean);
+        const download = document.createElement("a");
+
+        download.href = url;
+        download.download = `${filenameParts.join("-")}.json`;
+        document.body.appendChild(download);
+        download.click();
+        download.remove();
+        URL.revokeObjectURL(url);
+        setStatus("Saved scorecard JSON.");
+      };
+
+      const applyScorecardData = (data) => {
+        if (!data || typeof data !== "object") {
+          throw new Error("The selected file does not contain scorecard data.");
+        }
+
+        deviceMake.value = data.device?.make || "";
+        deviceModel.value = data.device?.model || "";
+
+        if (Array.isArray(data.answers)) {
+          const rows = Array.from(tableBody.querySelectorAll("tr"));
+
+          data.answers.forEach((answer, fallbackIndex) => {
+            const answerIndex = Number.isInteger(answer.index)
+              ? answer.index
+              : fallbackIndex;
+            const row = rows[answerIndex];
+
+            if (!row) {
+              return;
+            }
+
+            row.querySelector(".weight-input").value = clampRating(answer.weight);
+            row.querySelector(".score-input").value = clampRating(answer.score);
+            row.querySelector(".notes-input").value = answer.notes || "";
+          });
+        }
+
+        calculateTotals();
+      };
+
+      const loadScorecardJson = async (file) => {
+        if (!file) {
+          return;
+        }
+
+        const text = await file.text();
+        const data = JSON.parse(text);
+        applyScorecardData(data);
+        setStatus(`Loaded ${file.name}.`);
       };
 
       questions.forEach((item, index) => {
@@ -486,6 +828,47 @@
         });
 
         tableBody.appendChild(row);
+      });
+
+      saveJsonButton.addEventListener("click", saveScorecardJson);
+
+      loadJsonButton.addEventListener("click", () => {
+        jsonFileInput.click();
+      });
+
+      jsonFileInput.addEventListener("change", async () => {
+        try {
+          await loadScorecardJson(jsonFileInput.files[0]);
+        } catch (error) {
+          setStatus(error.message || "Unable to load JSON file.");
+        } finally {
+          jsonFileInput.value = "";
+        }
+      });
+
+      printButton.addEventListener("click", () => {
+        if (aboutDialog.open) {
+          aboutDialog.close();
+        }
+        window.print();
+      });
+
+      openAboutButton.addEventListener("click", () => {
+        if (typeof aboutDialog.showModal === "function") {
+          aboutDialog.showModal();
+        } else {
+          aboutDialog.setAttribute("open", "");
+        }
+      });
+
+      closeAboutButton.addEventListener("click", () => {
+        aboutDialog.close();
+      });
+
+      aboutDialog.addEventListener("click", (event) => {
+        if (event.target === aboutDialog) {
+          aboutDialog.close();
+        }
       });
 
       calculateTotals();

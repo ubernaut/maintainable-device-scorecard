@@ -16,6 +16,8 @@ Ultimately it's my hope that if enough people considered these questions when ma
 
 The scorecard website is built from `index.html` and `questions.js`. Run `npm run build` to copy the static site into `docs/` for GitHub Pages. Configure GitHub Pages to serve from the repository's `docs` folder.
 
+The website can save a filled scorecard to JSON, load that JSON later, and open the browser print dialog for saving a completed scorecard as a PDF.
+
 ## questions:
 
 Is there an open or available API with documentation for end user use?
