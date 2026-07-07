@@ -504,11 +504,27 @@
         border-top: 2px solid var(--border-strong);
         border-bottom: 1px solid var(--border);
         background: var(--surface-muted);
-        color: var(--accent-strong);
-        font-size: 0.92rem;
-        letter-spacing: 0.08em;
         text-align: left;
+      }
+
+      .category-title {
+        display: block;
+        color: var(--accent-strong);
+        font-size: 1.18rem;
+        font-weight: 850;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
+      }
+
+      .category-description {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 1rem;
+        font-weight: 400;
+        letter-spacing: 0;
+        line-height: 1.45;
+        text-transform: none;
       }
 
       .category-row:first-child th {
@@ -952,7 +968,10 @@
           padding: 12px 4px 8px;
           border: 0;
           background: transparent;
-          font-size: 0.84rem;
+        }
+
+        .category-title {
+          font-size: 1.1rem;
         }
 
         .score-row td {
@@ -1602,6 +1621,16 @@
         available: 0,
         normalizedScore: 0,
       };
+      const categoryDescriptions = {
+        "Configuration & Operations":
+          "Setup, provisioning, recovery, and day-to-day administration paths that keep devices manageable over time.",
+        "APIs, Identity & Data Flow":
+          "Integration, authentication, data ownership, and external dependency concerns that affect long-term control.",
+        "Software & Firmware Lifecycle":
+          "Patchability, licensing, update access, and vendor support expectations across the device service life.",
+        "Hardware, Supply Chain & Documentation":
+          "Repairability, sourcing confidence, hardware transparency, reliability planning, and transferable documentation.",
+      };
 
       const clampScore = (value) => {
         const parsed = Number.parseInt(value, 10);
@@ -1901,11 +1930,19 @@
       const appendCategoryRow = (category) => {
         const row = document.createElement("tr");
         const header = document.createElement("th");
+        const title = document.createElement("span");
+        const description = document.createElement("span");
 
         row.className = "category-row";
         header.scope = "rowgroup";
         header.colSpan = 6;
-        header.textContent = category;
+        title.className = "category-title";
+        title.textContent = category;
+        description.className = "category-description";
+        description.textContent =
+          categoryDescriptions[category] ||
+          "Questions in this section cover related maintainability factors.";
+        header.append(title, description);
         row.appendChild(header);
         tableBody.appendChild(row);
       };
