@@ -529,17 +529,26 @@
       }
 
       .question-content {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 12px;
-        align-items: start;
+        position: relative;
+        min-height: 30px;
       }
 
       .question-text {
+        display: flow-root;
         min-width: 0;
       }
 
+      .question-text::before {
+        float: right;
+        width: 42px;
+        height: 30px;
+        content: "";
+      }
+
       .question-help-button {
+        position: absolute;
+        top: 0;
+        right: 0;
         display: inline-grid;
         width: 30px;
         min-height: 30px;
@@ -960,10 +969,6 @@
         .question-cell {
           min-width: 0;
           max-width: none;
-        }
-
-        .question-content {
-          align-items: start;
         }
 
         .na-cell,
