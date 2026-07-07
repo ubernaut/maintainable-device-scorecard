@@ -744,6 +744,11 @@
         letter-spacing: 0;
       }
 
+      #question-help-title {
+        font-size: 1.08rem;
+        line-height: 1.35;
+      }
+
       .dialog-kicker {
         margin: 0 0 8px;
         color: var(--muted);
@@ -755,6 +760,25 @@
 
       .about-text p {
         margin: 0 0 1rem;
+      }
+
+      .question-help-details {
+        display: grid;
+        gap: 14px;
+        margin-top: 14px;
+      }
+
+      .question-help-section h3 {
+        margin: 0 0 4px;
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .question-help-section p {
+        margin: 0;
       }
 
       tfoot {
@@ -1195,7 +1219,20 @@
             Close
           </button>
         </div>
-        <p id="question-help-text"></p>
+        <div class="question-help-details">
+          <section class="question-help-section">
+            <h3>Why it matters long term</h3>
+            <p id="question-help-why"></p>
+          </section>
+          <section class="question-help-section">
+            <h3>When it matters most</h3>
+            <p id="question-help-matters"></p>
+          </section>
+          <section class="question-help-section">
+            <h3>When it may matter less</h3>
+            <p id="question-help-may-not-matter"></p>
+          </section>
+        </div>
       </div>
     </dialog>
 
@@ -1454,7 +1491,13 @@
         "#question-help-category",
       );
       const questionHelpTitle = document.querySelector("#question-help-title");
-      const questionHelpText = document.querySelector("#question-help-text");
+      const questionHelpWhy = document.querySelector("#question-help-why");
+      const questionHelpMatters = document.querySelector(
+        "#question-help-matters",
+      );
+      const questionHelpMayNotMatter = document.querySelector(
+        "#question-help-may-not-matter",
+      );
       const closeQuestionHelpButton = document.querySelector(
         "#close-question-help",
       );
@@ -1692,11 +1735,24 @@
       };
 
       const openQuestionHelp = (item) => {
+        const help =
+          typeof item.help === "object" && item.help !== null
+            ? item.help
+            : {
+                why:
+                  item.help ||
+                  "This question helps evaluate whether the device can remain supportable as people, policies, integrations, and infrastructure change.",
+                matters:
+                  "It matters most when the device is expected to last a long time, support critical operations, or be maintained by more than one person or team.",
+                mayNotMatter:
+                  "It may matter less for short-lived, low-risk, isolated, or easily replaced devices.",
+              };
+
         questionHelpCategory.textContent = item.category || "Scorecard item";
         questionHelpTitle.textContent = item.question;
-        questionHelpText.textContent =
-          item.help ||
-          "Consider how this affects long-term operation, security, repair, and support for the device.";
+        questionHelpWhy.textContent = help.why;
+        questionHelpMatters.textContent = help.matters;
+        questionHelpMayNotMatter.textContent = help.mayNotMatter;
 
         if (typeof questionHelpDialog.showModal === "function") {
           questionHelpDialog.showModal();
