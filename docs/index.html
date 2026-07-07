@@ -634,6 +634,7 @@
         margin: 0;
         appearance: none;
         background: transparent;
+        touch-action: pan-y;
       }
 
       input[type="range"]::-webkit-slider-runnable-track {
@@ -677,6 +678,16 @@
         grid-template-columns: minmax(120px, 1fr) 44px;
         gap: 10px;
         align-items: center;
+      }
+
+      .slider-step-button {
+        display: none;
+        width: 34px;
+        min-height: 34px;
+        padding: 0;
+        place-items: center;
+        font-size: 1rem;
+        line-height: 1;
       }
 
       .range-value {
@@ -727,7 +738,22 @@
       }
 
       .dialog-content {
-        padding: 24px;
+        position: relative;
+        padding: 28px 56px 28px 24px;
+      }
+
+      .dialog-close-button {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        display: inline-grid;
+        width: 32px;
+        min-height: 32px;
+        place-items: center;
+        padding: 0;
+        border-radius: 50%;
+        font-size: 1rem;
+        line-height: 1;
       }
 
       .dialog-header {
@@ -948,7 +974,16 @@
         }
 
         .slider-control {
-          grid-template-columns: minmax(0, 1fr) 44px;
+          grid-template-columns: 34px minmax(0, 1fr) 44px 34px;
+          gap: 8px;
+        }
+
+        .slider-step-button {
+          display: inline-grid;
+        }
+
+        .slider-control input[type="range"] {
+          pointer-events: none;
         }
 
         .notes-row {
@@ -1167,6 +1202,14 @@
           <span class="cell-label">Weight</span>
           <label class="sr-only weight-label"></label>
           <div class="slider-control">
+            <button
+              class="slider-step-button slider-step-down secondary-button"
+              type="button"
+              data-target="weight"
+              data-step="-1"
+            >
+              -
+            </button>
             <input
               class="weight-input"
               max="10"
@@ -1176,12 +1219,28 @@
               value="5"
             />
             <output class="range-value weight-value">5</output>
+            <button
+              class="slider-step-button slider-step-up secondary-button"
+              type="button"
+              data-target="weight"
+              data-step="1"
+            >
+              +
+            </button>
           </div>
         </td>
         <td class="range-cell">
           <span class="cell-label">Score</span>
           <label class="sr-only score-label-input"></label>
           <div class="slider-control">
+            <button
+              class="slider-step-button slider-step-down secondary-button"
+              type="button"
+              data-target="score"
+              data-step="-1"
+            >
+              -
+            </button>
             <input
               class="score-input"
               max="10"
@@ -1191,6 +1250,14 @@
               value="5"
             />
             <output class="range-value score-value">5</output>
+            <button
+              class="slider-step-button slider-step-up secondary-button"
+              type="button"
+              data-target="score"
+              data-step="1"
+            >
+              +
+            </button>
           </div>
         </td>
         <td class="points-cell">
@@ -1212,12 +1279,17 @@
 
     <dialog id="question-help-dialog" aria-labelledby="question-help-title">
       <div class="dialog-content">
+        <button
+          type="button"
+          id="close-question-help"
+          class="dialog-close-button secondary-button"
+          aria-label="Close question help"
+        >
+          x
+        </button>
         <p class="dialog-kicker" id="question-help-category"></p>
         <div class="dialog-header">
           <h2 id="question-help-title"></h2>
-          <button type="button" id="close-question-help" class="secondary-button">
-            Close
-          </button>
         </div>
         <div class="question-help-details">
           <section class="question-help-section">
@@ -1238,11 +1310,16 @@
 
     <dialog id="about-dialog" aria-labelledby="about-title">
       <div class="dialog-content">
+        <button
+          type="button"
+          id="close-about"
+          class="dialog-close-button secondary-button"
+          aria-label="Close about dialog"
+        >
+          x
+        </button>
         <div class="dialog-header">
           <h2 id="about-title">About this scorecard</h2>
-          <button type="button" id="close-about" class="secondary-button">
-            Close
-          </button>
         </div>
         <div class="about-text">
           <p>
@@ -1550,6 +1627,7 @@
         const notApplicable = isNotApplicable(row);
         const weightInput = row.querySelector(".weight-input");
         const scoreInput = row.querySelector(".score-input");
+        const stepButtons = row.querySelectorAll(".slider-step-button");
 
         if (notApplicable) {
           if (!row.dataset.previousWeight && Number(weightInput.value) > 0) {
@@ -1559,11 +1637,17 @@
           weightInput.value = 0;
           weightInput.disabled = true;
           scoreInput.disabled = true;
+          stepButtons.forEach((button) => {
+            button.disabled = true;
+          });
           row.classList.add("is-na");
           notesRow?.classList.add("is-na");
         } else {
           weightInput.disabled = false;
           scoreInput.disabled = false;
+          stepButtons.forEach((button) => {
+            button.disabled = false;
+          });
           row.classList.remove("is-na");
           notesRow?.classList.remove("is-na");
 
@@ -1578,6 +1662,20 @@
 
         row.querySelector(".weight-value").textContent = weightInput.value;
         row.querySelector(".score-value").textContent = scoreInput.value;
+      };
+
+      const stepSlider = (row, target, delta) => {
+        const input = row.querySelector(`.${target}-input`);
+        const nextValue = Number(input.value) + delta;
+
+        if (target === "weight") {
+          input.value = clampWeight(nextValue);
+          row.dataset.previousWeight = input.value;
+        } else {
+          input.value = clampScore(nextValue);
+        }
+
+        calculateTotals();
       };
 
       const calculateTotals = () => {
@@ -1811,12 +1909,28 @@
         weightLabel.setAttribute("for", weightId);
         weightLabel.textContent = `Weight for question ${rowNumber}`;
         weightInput.id = weightId;
+        row
+          .querySelectorAll('.slider-step-button[data-target="weight"]')
+          .forEach((button) => {
+            button.setAttribute(
+              "aria-label",
+              `${button.dataset.step === "1" ? "Increase" : "Decrease"} weight for question ${rowNumber}`,
+            );
+          });
 
         const scoreLabel = row.querySelector(".score-label-input");
         const scoreInput = row.querySelector(".score-input");
         scoreLabel.setAttribute("for", scoreId);
         scoreLabel.textContent = `Score for question ${rowNumber}`;
         scoreInput.id = scoreId;
+        row
+          .querySelectorAll('.slider-step-button[data-target="score"]')
+          .forEach((button) => {
+            button.setAttribute(
+              "aria-label",
+              `${button.dataset.step === "1" ? "Increase" : "Decrease"} score for question ${rowNumber}`,
+            );
+          });
 
         const notesLabel = row.querySelector(".notes-label");
         const notesInput = row.querySelector(".notes-input");
@@ -1847,6 +1961,22 @@
 
             calculateTotals();
           }
+        });
+
+        tableRow.addEventListener("click", (event) => {
+          const stepButton =
+            event.target instanceof Element
+              ? event.target.closest(".slider-step-button")
+              : null;
+          if (!stepButton || isNotApplicable(tableRow)) {
+            return;
+          }
+
+          stepSlider(
+            tableRow,
+            stepButton.dataset.target,
+            Number(stepButton.dataset.step),
+          );
         });
 
         tableBody.appendChild(row);
