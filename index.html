@@ -551,7 +551,8 @@
         line-height: 1;
       }
 
-      body.dark .question-help-button {
+      body.dark .question-help-button,
+      body.dark .question-mark-glyph {
         font-family: Arial, Helvetica, sans-serif;
       }
 
@@ -1832,6 +1833,26 @@
         setStatus(`Loaded ${file.name}.`);
       };
 
+      const renderQuestionText = (element, question) => {
+        const text = question || "";
+        const match = text.match(/^(.*)\?(\s*)$/);
+
+        if (!match) {
+          element.textContent = text;
+          return;
+        }
+
+        const questionMark = document.createElement("span");
+        questionMark.className = "question-mark-glyph";
+        questionMark.textContent = "?";
+
+        element.replaceChildren(
+          document.createTextNode(match[1]),
+          questionMark,
+          document.createTextNode(match[2]),
+        );
+      };
+
       const openQuestionHelp = (item) => {
         const help =
           typeof item.help === "object" && item.help !== null
@@ -1847,7 +1868,7 @@
               };
 
         questionHelpCategory.textContent = item.category || "Scorecard item";
-        questionHelpTitle.textContent = item.question;
+        renderQuestionText(questionHelpTitle, item.question);
         questionHelpWhy.textContent = help.why;
         questionHelpMatters.textContent = help.matters;
         questionHelpMayNotMatter.textContent = help.mayNotMatter;
@@ -1889,7 +1910,7 @@
         const notesId = `notes-${rowNumber}`;
 
         row.querySelector(".number-cell").textContent = rowNumber;
-        row.querySelector(".question-text").textContent = item.question;
+        renderQuestionText(row.querySelector(".question-text"), item.question);
 
         const helpButton = row.querySelector(".question-help-button");
         helpButton.setAttribute(
