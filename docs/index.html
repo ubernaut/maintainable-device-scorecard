@@ -71,6 +71,8 @@
 
       :root {
         --font-light: "typewriter", "Courier New", monospace;
+        --font-light-ui: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
         --font-dark: "Gohu", "Courier New", monospace;
         --background: #f6f7f9;
         --surface: #ffffff;
@@ -147,8 +149,13 @@
         font-family: var(--font-dark);
       }
 
-      .crt.crt-active::after,
-      .crt.is-loading::after {
+      body.light main,
+      body.light dialog {
+        font-family: var(--font-light-ui);
+      }
+
+      body.dark.crt.crt-active::after,
+      body.dark.crt.is-loading::after {
         position: fixed;
         inset: 0;
         z-index: 50;
@@ -160,7 +167,7 @@
         animation: resumeFlicker 0.15s infinite;
       }
 
-      .crt::before {
+      body.dark.crt::before {
         position: fixed;
         inset: 0;
         z-index: 50;
@@ -180,8 +187,8 @@
           3px 100%;
       }
 
-      .crt.crt-active,
-      .crt.is-loading {
+      body.dark.crt.crt-active,
+      body.dark.crt.is-loading {
         animation: resumeTextShadow 1.6s infinite;
       }
 
@@ -251,6 +258,10 @@
         line-height: 1;
       }
 
+      #theme-icon {
+        transform: translateY(-1px);
+      }
+
       body.dark #togglebtn {
         font-family: var(--font-light);
       }
@@ -289,7 +300,7 @@
 
       main {
         width: min(1180px, calc(100% - 32px));
-        margin: -28px auto 56px;
+        margin: 24px auto 56px;
       }
 
       .setup-panel {
@@ -752,7 +763,7 @@
 
         main {
           width: min(100% - 24px, 1180px);
-          margin-top: -22px;
+          margin-top: 18px;
         }
 
         .score-panel {
@@ -975,8 +986,8 @@
       title="toggle light/dark mode"
       hidden
     >
-      <span aria-hidden="true">☼</span>
-      <span class="sr-only">Toggle light/dark mode</span>
+      <span id="theme-icon" aria-hidden="true">☼</span>
+      <span class="sr-only" id="theme-toggle-label">Toggle light/dark mode</span>
     </button>
     <header>
       <div class="hero">
@@ -1200,6 +1211,30 @@
       const getBody = () => document.getElementById("body");
       const getLoaderBar = () => document.getElementById("loaderBar");
       const getToggleButton = () => document.getElementById("togglebtn");
+      const getThemeIcon = () => document.getElementById("theme-icon");
+      const getThemeToggleLabel = () =>
+        document.getElementById("theme-toggle-label");
+
+      const updateThemeToggle = (theme) => {
+        const toggleButton = getToggleButton();
+        const themeIcon = getThemeIcon();
+        const themeToggleLabel = getThemeToggleLabel();
+        const nextTheme = theme === "dark" ? "light" : "dark";
+        const label = `Switch to ${nextTheme} mode`;
+
+        if (themeIcon) {
+          themeIcon.textContent = theme === "dark" ? "☾" : "☼";
+        }
+
+        if (themeToggleLabel) {
+          themeToggleLabel.textContent = label;
+        }
+
+        if (toggleButton) {
+          toggleButton.title = label;
+          toggleButton.setAttribute("aria-label", label);
+        }
+      };
 
       const applyTheme = (theme) => {
         const body = getBody();
@@ -1209,6 +1244,7 @@
 
         body.classList.remove("light", "dark");
         body.classList.add(theme);
+        updateThemeToggle(theme);
       };
 
       const applyPreferredTheme = () => {
