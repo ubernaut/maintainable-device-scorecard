@@ -244,26 +244,31 @@
         top: 14px;
         right: 14px;
         z-index: 30;
-        display: inline-grid;
+        display: flex;
         width: 46px;
-        min-height: 46px;
-        place-items: center;
+        height: 46px;
+        min-height: 0;
+        align-items: center;
+        justify-content: center;
         border: 1px solid var(--border-strong);
         border-radius: 50%;
         background: var(--surface);
         color: var(--text);
         box-shadow: var(--shadow);
-        font-family: var(--font-light);
-        font-size: 1.65rem;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        font-size: 0;
         line-height: 1;
+        padding: 0;
       }
 
       #theme-icon {
-        transform: translateY(-1px);
-      }
-
-      body.dark #togglebtn {
-        font-family: var(--font-light);
+        display: block;
+        width: 1em;
+        height: 1em;
+        font-size: 1.28rem;
+        line-height: 1;
+        text-align: center;
       }
 
       #togglebtn:hover {
@@ -788,8 +793,11 @@
           top: 12px;
           right: 12px;
           width: 38px;
-          min-height: 38px;
-          font-size: 1.2rem;
+          height: 38px;
+        }
+
+        #theme-icon {
+          font-size: 1.05rem;
         }
 
         main {
