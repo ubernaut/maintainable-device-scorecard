@@ -4,12 +4,78 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Maintainable Device Scorecard</title>
+    <link
+      rel="preload"
+      href="https://ubernaut.github.io/resume/css/GohuFont14NerdFontMono-ResumeSubset.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="https://ubernaut.github.io/resume/css/JMHTypewriter.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
     <style>
+      @font-face {
+        font-family: "Gohu";
+        src: url("https://ubernaut.github.io/resume/css/GohuFont14NerdFontMono-ResumeSubset.woff2")
+          format("woff2");
+      }
+
+      @font-face {
+        font-family: "typewriter";
+        src: url("https://ubernaut.github.io/resume/css/JMHTypewriter.ttf")
+          format("truetype");
+      }
+
+      @keyframes resumeFlicker {
+        0%,
+        100% {
+          opacity: 0.16;
+        }
+        20% {
+          opacity: 0.34;
+        }
+        50% {
+          opacity: 0.08;
+        }
+        70% {
+          opacity: 0.26;
+        }
+      }
+
+      @keyframes resumeTextShadow {
+        0%,
+        100% {
+          text-shadow:
+            0.4px 0 1px rgb(0 30 255 / 42%),
+            -0.4px 0 1px rgb(255 0 80 / 28%),
+            0 0 3px;
+        }
+        35% {
+          text-shadow:
+            2.8px 0 1px rgb(0 30 255 / 36%),
+            -2.8px 0 1px rgb(255 0 80 / 24%),
+            0 0 3px;
+        }
+        70% {
+          text-shadow:
+            0.1px 0 1px rgb(0 30 255 / 42%),
+            -0.1px 0 1px rgb(255 0 80 / 28%),
+            0 0 3px;
+        }
+      }
+
       :root {
-        color-scheme: light;
+        --font-light: "typewriter", "Courier New", monospace;
+        --font-dark: "Gohu", "Courier New", monospace;
         --background: #f6f7f9;
         --surface: #ffffff;
         --surface-muted: #eef2f4;
+        --input-surface: #ffffff;
         --border: #d5dde3;
         --border-strong: #aab7c2;
         --text: #202a33;
@@ -17,7 +83,49 @@
         --accent: #28766f;
         --accent-strong: #1d5c56;
         --warning: #b25d35;
+        --header-bg: linear-gradient(135deg, #173f46 0%, #28766f 58%, #b25d35 100%);
+        --header-text: #ffffff;
+        --header-muted: rgb(255 255 255 / 86%);
         --shadow: 0 16px 36px rgb(31 45 61 / 10%);
+      }
+
+      body.light {
+        color-scheme: light;
+        --background: #ffffff;
+        --surface: #fffdf8;
+        --surface-muted: #f3efe5;
+        --input-surface: #ffffff;
+        --border: #161616;
+        --border-strong: #161616;
+        --text: #111111;
+        --muted: #4f4a43;
+        --accent: #111111;
+        --accent-strong: #000000;
+        --warning: #7d4b22;
+        --header-bg: #ffffff;
+        --header-text: #000000;
+        --header-muted: #262626;
+        --shadow: none;
+      }
+
+      body.dark {
+        color-scheme: dark;
+        font-size: 1.03rem;
+        --background: #000000;
+        --surface: #020a02;
+        --surface-muted: #061906;
+        --input-surface: #000000;
+        --border: #1e5a1e;
+        --border-strong: #51a851;
+        --text: lightgreen;
+        --muted: #8fd58f;
+        --accent: #8fff8f;
+        --accent-strong: #c8ffc8;
+        --warning: #ffd166;
+        --header-bg: #000000;
+        --header-text: lightgreen;
+        --header-muted: #9be79b;
+        --shadow: 0 0 24px rgb(144 238 144 / 14%);
       }
 
       * {
@@ -28,15 +136,134 @@
         margin: 0;
         background: var(--background);
         color: var(--text);
-        font-family:
-          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-          "Segoe UI", sans-serif;
+        font-family: var(--font-light);
         line-height: 1.5;
+        transition:
+          background-color 160ms ease,
+          color 160ms ease;
+      }
+
+      body.dark {
+        font-family: var(--font-dark);
+      }
+
+      .crt.crt-active::after,
+      .crt.is-loading::after {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        display: block;
+        pointer-events: none;
+        content: " ";
+        background: rgb(18 16 16 / 10%);
+        opacity: 0;
+        animation: resumeFlicker 0.15s infinite;
+      }
+
+      .crt::before {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        display: block;
+        pointer-events: none;
+        content: " ";
+        background:
+          linear-gradient(rgb(18 16 16 / 0%) 50%, rgb(0 0 0 / 18%) 50%),
+          linear-gradient(
+            90deg,
+            rgb(255 0 0 / 5%),
+            rgb(0 255 0 / 2%),
+            rgb(0 0 255 / 5%)
+          );
+        background-size:
+          100% 2px,
+          3px 100%;
+      }
+
+      .crt.crt-active,
+      .crt.is-loading {
+        animation: resumeTextShadow 1.6s infinite;
+      }
+
+      body.is-loading header,
+      body.is-loading main,
+      body.is-loading #togglebtn {
+        visibility: hidden;
+      }
+
+      #pageLoader {
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background: inherit;
+        color: inherit;
+        font-family: "Courier New", monospace;
+      }
+
+      body.dark #pageLoader {
+        font-family: var(--font-dark);
+      }
+
+      body.is-ready #pageLoader {
+        display: none;
+      }
+
+      .loader-label,
+      .loader-bar {
+        display: block;
+        line-height: 1;
+      }
+
+      .loader-label {
+        font-size: 1.25rem;
+      }
+
+      .loader-bar {
+        min-width: 14ch;
+        font-size: clamp(1.25rem, 8vw, 3rem);
+        letter-spacing: 0;
+        text-align: left;
+        white-space: nowrap;
+      }
+
+      #togglebtn {
+        position: fixed;
+        top: 14px;
+        right: 14px;
+        z-index: 30;
+        display: inline-grid;
+        width: 46px;
+        min-height: 46px;
+        place-items: center;
+        border: 1px solid var(--border-strong);
+        border-radius: 50%;
+        background: var(--surface);
+        color: var(--text);
+        box-shadow: var(--shadow);
+        font-family: var(--font-light);
+        font-size: 1.65rem;
+        line-height: 1;
+      }
+
+      body.dark #togglebtn {
+        font-family: var(--font-light);
+      }
+
+      #togglebtn:hover {
+        background: var(--surface-muted);
       }
 
       header {
-        background: linear-gradient(135deg, #173f46 0%, #28766f 58%, #b25d35 100%);
-        color: #ffffff;
+        position: relative;
+        border-bottom: 1px solid var(--border);
+        background: var(--header-bg);
+        color: var(--header-text);
       }
 
       .hero {
@@ -56,7 +283,7 @@
       .intro {
         max-width: 820px;
         margin: 18px 0 0;
-        color: rgb(255 255 255 / 86%);
+        color: var(--header-muted);
         font-size: clamp(1rem, 1.8vw, 1.18rem);
       }
 
@@ -90,7 +317,7 @@
       }
 
       .field label {
-        color: #30404d;
+        color: var(--muted);
         font-size: 0.78rem;
         font-weight: 800;
         letter-spacing: 0.06em;
@@ -109,7 +336,7 @@
         border: 1px solid var(--accent-strong);
         border-radius: 6px;
         background: var(--accent);
-        color: #ffffff;
+        color: var(--background);
         cursor: pointer;
         font: inherit;
         font-weight: 750;
@@ -127,7 +354,7 @@
 
       .secondary-button {
         border-color: var(--border-strong);
-        background: #ffffff;
+        background: var(--surface);
         color: var(--text);
       }
 
@@ -213,7 +440,7 @@
       }
 
       .table-wrap {
-        overflow-x: auto;
+        overflow: hidden;
         border: 1px solid var(--border);
         border-radius: 8px;
         background: var(--surface);
@@ -222,7 +449,7 @@
 
       table {
         width: 100%;
-        min-width: 860px;
+        min-width: 0;
         border-collapse: collapse;
       }
 
@@ -244,7 +471,7 @@
       }
 
       th {
-        color: #30404d;
+        color: var(--muted);
         font-size: 0.78rem;
         font-weight: 800;
         letter-spacing: 0.06em;
@@ -256,8 +483,25 @@
         border-bottom: 0;
       }
 
-      tbody tr:nth-child(even) {
-        background: #fafbfc;
+      .score-row,
+      .notes-row {
+        background: var(--surface);
+      }
+
+      .category-row th {
+        padding: 18px 20px 12px;
+        border-top: 2px solid var(--border-strong);
+        border-bottom: 1px solid var(--border);
+        background: var(--surface-muted);
+        color: var(--accent-strong);
+        font-size: 0.92rem;
+        letter-spacing: 0.08em;
+        text-align: left;
+        text-transform: uppercase;
+      }
+
+      .category-row:first-child th {
+        border-top: 0;
       }
 
       .number-cell {
@@ -268,13 +512,18 @@
       }
 
       .question-cell {
-        min-width: 360px;
-        max-width: 560px;
+        min-width: 280px;
+        max-width: 620px;
         font-weight: 650;
       }
 
-      .input-cell {
-        width: 120px;
+      .na-cell {
+        width: 84px;
+        text-align: center;
+      }
+
+      .range-cell {
+        width: 210px;
       }
 
       .points-cell {
@@ -284,34 +533,143 @@
         font-weight: 700;
       }
 
-      .notes-cell {
-        min-width: 220px;
+      .notes-row td {
+        padding-top: 0;
       }
 
-      input {
+      .notes-full {
+        width: 100%;
+      }
+
+      .notes-label {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      input[type="text"],
+      textarea {
         width: 100%;
         border: 1px solid var(--border-strong);
         border-radius: 6px;
-        background: #ffffff;
+        background: var(--input-surface);
         color: var(--text);
         font: inherit;
       }
 
-      input[type="number"] {
-        min-height: 42px;
-        padding: 8px 10px;
-        font-weight: 750;
-        text-align: center;
-      }
-
-      input[type="text"] {
+      input[type="text"],
+      textarea {
         min-height: 42px;
         padding: 8px 10px;
       }
 
-      input:focus {
+      textarea {
+        min-height: 64px;
+        resize: vertical;
+      }
+
+      input[type="text"]:focus,
+      textarea:focus {
         border-color: var(--accent);
         outline: 3px solid rgb(40 118 111 / 20%);
+      }
+
+      input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        accent-color: var(--accent);
+      }
+
+      input[type="checkbox"]:focus-visible,
+      input[type="range"]:focus-visible {
+        outline: 3px solid rgb(40 118 111 / 24%);
+        outline-offset: 3px;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        height: 32px;
+        margin: 0;
+        appearance: none;
+        background: transparent;
+      }
+
+      input[type="range"]::-webkit-slider-runnable-track {
+        height: 8px;
+        border-radius: 999px;
+        background: var(--surface-muted);
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        width: 22px;
+        height: 22px;
+        margin-top: -7px;
+        border: 2px solid var(--accent);
+        border-radius: 50%;
+        appearance: none;
+        background: var(--surface);
+        box-shadow: 0 2px 8px rgb(31 45 61 / 22%);
+      }
+
+      input[type="range"]::-moz-range-track {
+        height: 8px;
+        border-radius: 999px;
+        background: var(--surface-muted);
+      }
+
+      input[type="range"]::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--accent);
+        border-radius: 50%;
+        background: var(--surface);
+        box-shadow: 0 2px 8px rgb(31 45 61 / 22%);
+      }
+
+      input[type="range"]:disabled {
+        opacity: 0.48;
+      }
+
+      .slider-control {
+        display: grid;
+        grid-template-columns: minmax(120px, 1fr) 44px;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .range-value {
+        display: inline-grid;
+        min-width: 38px;
+        min-height: 34px;
+        place-items: center;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--surface);
+        color: var(--accent-strong);
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .checkbox-control {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted);
+        font-weight: 750;
+      }
+
+      .cell-label {
+        display: none;
+      }
+
+      .score-row.is-na,
+      .score-row.is-na + .notes-row {
+        color: var(--muted);
       }
 
       dialog {
@@ -321,6 +679,7 @@
         border: 1px solid var(--border);
         border-radius: 8px;
         box-shadow: 0 24px 80px rgb(31 45 61 / 32%);
+        background: var(--surface);
         color: var(--text);
         padding: 0;
       }
@@ -352,7 +711,7 @@
       }
 
       tfoot {
-        background: #f9fbfa;
+        background: var(--surface-muted);
       }
 
       tfoot th,
@@ -380,7 +739,15 @@
       @media (max-width: 760px) {
         .hero {
           width: min(100% - 24px, 1180px);
-          padding: 34px 0 44px;
+          padding: 34px 54px 44px 0;
+        }
+
+        #togglebtn {
+          top: 12px;
+          right: 12px;
+          width: 38px;
+          min-height: 38px;
+          font-size: 1.2rem;
         }
 
         main {
@@ -413,11 +780,136 @@
           width: 100%;
           min-width: 0;
         }
+
+        .table-wrap {
+          overflow: visible;
+          border: 0;
+          background: transparent;
+          box-shadow: none;
+        }
+
+        table,
+        tbody,
+        tfoot {
+          display: block;
+          width: 100%;
+        }
+
+        caption {
+          display: block;
+          padding: 14px 0;
+        }
+
+        thead {
+          display: none;
+        }
+
+        .score-row {
+          display: grid;
+          grid-template-columns: 42px minmax(0, 1fr);
+          gap: 14px 12px;
+          padding: 16px;
+          border: 1px solid var(--border);
+          border-bottom: 0;
+          border-radius: 8px 8px 0 0;
+          background: var(--surface) !important;
+        }
+
+        .category-row {
+          display: block;
+          margin: 18px 0 8px;
+        }
+
+        .category-row:first-child {
+          margin-top: 0;
+        }
+
+        .category-row th {
+          display: block;
+          padding: 12px 4px 8px;
+          border: 0;
+          background: transparent;
+          font-size: 0.84rem;
+        }
+
+        .score-row td {
+          display: block;
+          width: auto;
+          padding: 0;
+          border: 0;
+        }
+
+        .number-cell {
+          text-align: left;
+        }
+
+        .question-cell {
+          min-width: 0;
+          max-width: none;
+        }
+
+        .na-cell,
+        .range-cell,
+        .points-cell {
+          grid-column: 1 / -1;
+          text-align: left;
+        }
+
+        .cell-label {
+          display: block;
+          margin-bottom: 6px;
+          color: var(--muted);
+          font-size: 0.76rem;
+          font-weight: 800;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+        }
+
+        .checkbox-control {
+          justify-content: flex-start;
+        }
+
+        .slider-control {
+          grid-template-columns: minmax(0, 1fr) 44px;
+        }
+
+        .notes-row {
+          display: block;
+          margin-bottom: 14px;
+        }
+
+        .notes-row td {
+          display: block;
+          padding: 0 16px 16px;
+          border: 1px solid var(--border);
+          border-top: 0;
+          border-radius: 0 0 8px 8px;
+          background: var(--surface);
+        }
+
+        tfoot tr {
+          display: flex;
+          gap: 12px;
+          justify-content: space-between;
+          margin-top: 18px;
+          padding: 16px;
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          background: var(--surface);
+        }
+
+        tfoot th,
+        tfoot td {
+          display: block;
+          padding: 0;
+          border: 0;
+        }
       }
 
       @media print {
         body {
           background: #ffffff;
+          color: #000000;
         }
 
         header {
@@ -437,13 +929,55 @@
 
         .actions,
         .status-message,
+        #togglebtn,
+        #pageLoader,
         dialog {
           display: none;
         }
       }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
     </style>
   </head>
-  <body>
+  <body id="body" class="crt is-loading">
+    <script>
+      {
+        const themeParam = new URLSearchParams(window.location.search).get(
+          "theme",
+        );
+        const explicitTheme =
+          themeParam === "light" || themeParam === "dark" ? themeParam : null;
+        document.body.classList.add(
+          explicitTheme ??
+            (window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light"),
+        );
+      }
+    </script>
+    <div id="pageLoader" role="status" aria-live="polite">
+      <span class="loader-label">LOADING</span>
+      <span id="loaderBar" class="loader-bar">[------------]</span>
+    </div>
+    <button
+      id="togglebtn"
+      type="button"
+      onclick="window.toggleDark()"
+      title="toggle light/dark mode"
+      hidden
+    >
+      <span aria-hidden="true">☼</span>
+      <span class="sr-only">Toggle light/dark mode</span>
+    </button>
     <header>
       <div class="hero">
         <h1>Maintainable Device Scorecard</h1>
@@ -511,24 +1045,24 @@
       <div class="table-wrap">
         <table>
           <caption>
-            Weights and scores accept whole numbers from 1 to 10.
+            Use N/A to remove a question from scoring. Weights and scores use
+            whole-number sliders.
           </caption>
           <thead>
             <tr>
               <th scope="col" class="number-cell">#</th>
               <th scope="col">Question</th>
+              <th scope="col">N/A</th>
               <th scope="col">Weight</th>
               <th scope="col">Score</th>
               <th scope="col">Weighted Points</th>
-              <th scope="col">Notes</th>
             </tr>
           </thead>
           <tbody id="scorecard-body"></tbody>
           <tfoot>
             <tr>
-              <th scope="row" colspan="4">Total weighted score</th>
+              <th scope="row" colspan="5">Total weighted score</th>
               <td class="footer-total" id="footer-score">50.0 / 100</td>
-              <td></td>
             </tr>
           </tfoot>
         </table>
@@ -536,37 +1070,59 @@
     </main>
 
     <template id="scorecard-row-template">
-      <tr>
+      <tr class="score-row">
         <td class="number-cell"></td>
         <td class="question-cell"></td>
-        <td class="input-cell">
-          <label class="sr-only"></label>
-          <input
-            class="weight-input"
-            inputmode="numeric"
-            max="10"
-            min="1"
-            step="1"
-            type="number"
-            value="5"
-          />
+        <td class="na-cell">
+          <span class="cell-label">Not applicable</span>
+          <label class="checkbox-control">
+            <input class="na-input" type="checkbox" />
+            <span>N/A</span>
+          </label>
         </td>
-        <td class="input-cell">
-          <label class="sr-only"></label>
-          <input
-            class="score-input"
-            inputmode="numeric"
-            max="10"
-            min="1"
-            step="1"
-            type="number"
-            value="5"
-          />
+        <td class="range-cell">
+          <span class="cell-label">Weight</span>
+          <label class="sr-only weight-label"></label>
+          <div class="slider-control">
+            <input
+              class="weight-input"
+              max="10"
+              min="0"
+              step="1"
+              type="range"
+              value="5"
+            />
+            <output class="range-value weight-value">5</output>
+          </div>
         </td>
-        <td class="points-cell"></td>
-        <td class="notes-cell">
-          <label class="sr-only"></label>
-          <input class="notes-input" type="text" />
+        <td class="range-cell">
+          <span class="cell-label">Score</span>
+          <label class="sr-only score-label-input"></label>
+          <div class="slider-control">
+            <input
+              class="score-input"
+              max="10"
+              min="1"
+              step="1"
+              type="range"
+              value="5"
+            />
+            <output class="range-value score-value">5</output>
+          </div>
+        </td>
+        <td class="points-cell">
+          <span class="cell-label">Weighted points</span>
+          <span class="points-value"></span>
+        </td>
+      </tr>
+      <tr class="notes-row">
+        <td class="notes-full" colspan="6">
+          <label class="notes-label"></label>
+          <textarea
+            class="notes-input"
+            rows="2"
+            placeholder="Documentation link or explanation"
+          ></textarea>
         </td>
       </tr>
     </template>
@@ -625,6 +1181,161 @@
 
     <script src="questions.js"></script>
     <script>
+      const LOAD_CRT_DURATION_MS = 1000;
+      const INTERACTION_CRT_DURATION_MS = 200;
+      const LOADER_SEGMENTS = 12;
+      const colorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      const scorecardThemeParam = new URLSearchParams(window.location.search).get(
+        "theme",
+      );
+      const explicitScorecardTheme =
+        scorecardThemeParam === "light" || scorecardThemeParam === "dark"
+          ? scorecardThemeParam
+          : null;
+      let crtTimer;
+      let loaderTimer;
+      let loaderProgress = 0;
+      let userSelectedTheme = Boolean(explicitScorecardTheme);
+
+      const getBody = () => document.getElementById("body");
+      const getLoaderBar = () => document.getElementById("loaderBar");
+      const getToggleButton = () => document.getElementById("togglebtn");
+
+      const applyTheme = (theme) => {
+        const body = getBody();
+        if (!body) {
+          return;
+        }
+
+        body.classList.remove("light", "dark");
+        body.classList.add(theme);
+      };
+
+      const applyPreferredTheme = () => {
+        applyTheme(
+          explicitScorecardTheme ?? (colorSchemeQuery.matches ? "dark" : "light"),
+        );
+      };
+
+      const triggerCrtEffect = (durationMs) => {
+        const body = getBody();
+        if (!body) {
+          return;
+        }
+
+        body.classList.add("crt", "crt-active");
+        window.clearTimeout(crtTimer);
+        crtTimer = window.setTimeout(() => {
+          body.classList.remove("crt-active");
+        }, durationMs);
+      };
+
+      const triggerInteractionCrtEffect = () => {
+        triggerCrtEffect(INTERACTION_CRT_DURATION_MS);
+      };
+
+      const setLoaderProgress = (progress) => {
+        const loaderBar = getLoaderBar();
+        if (!loaderBar) {
+          return;
+        }
+
+        loaderProgress = Math.max(0, Math.min(progress, 1));
+        const filled = Math.round(loaderProgress * LOADER_SEGMENTS);
+        const empty = LOADER_SEGMENTS - filled;
+        loaderBar.textContent = `[${"█".repeat(filled)}${"-".repeat(empty)}]`;
+      };
+
+      const waitForWindowLoad = () => {
+        if (document.readyState === "complete") {
+          return Promise.resolve();
+        }
+
+        return new Promise((resolve) => {
+          window.addEventListener("load", resolve, { once: true });
+        });
+      };
+
+      const waitForFonts = () => {
+        if (!document.fonts) {
+          return Promise.resolve();
+        }
+
+        return Promise.all([
+          document.fonts.load('1rem "Gohu"'),
+          document.fonts.load('1rem "typewriter"'),
+          document.fonts.ready,
+        ]);
+      };
+
+      const revealPage = () => {
+        const body = getBody();
+        const toggleButton = getToggleButton();
+        if (!body) {
+          return;
+        }
+
+        window.clearInterval(loaderTimer);
+        setLoaderProgress(1);
+
+        window.setTimeout(() => {
+          toggleButton?.removeAttribute("hidden");
+          body.classList.remove("is-loading");
+          body.classList.add("is-ready");
+          triggerCrtEffect(LOAD_CRT_DURATION_MS);
+        }, 120);
+      };
+
+      const startPageLoader = () => {
+        setLoaderProgress(0);
+        loaderTimer = window.setInterval(() => {
+          setLoaderProgress(Math.min(loaderProgress + 0.08, 0.92));
+        }, 120);
+
+        Promise.all([waitForWindowLoad(), waitForFonts()]).then(
+          revealPage,
+          revealPage,
+        );
+      };
+
+      window.toggleDark = () => {
+        const body = getBody();
+        if (!body) {
+          return;
+        }
+
+        userSelectedTheme = true;
+        body.classList.add("crt");
+
+        if (body.classList.contains("light")) {
+          applyTheme("dark");
+        } else {
+          applyTheme("light");
+        }
+
+        triggerInteractionCrtEffect();
+      };
+
+      applyPreferredTheme();
+
+      colorSchemeQuery.addEventListener("change", () => {
+        if (!userSelectedTheme) {
+          applyPreferredTheme();
+        }
+      });
+
+      startPageLoader();
+
+      window.addEventListener("scroll", triggerInteractionCrtEffect, {
+        passive: true,
+      });
+      window.addEventListener("pointerdown", triggerInteractionCrtEffect, {
+        passive: true,
+      });
+      window.addEventListener("touchstart", triggerInteractionCrtEffect, {
+        passive: true,
+      });
+
       const questions = window.scorecardQuestions || [];
       const tableBody = document.querySelector("#scorecard-body");
       const template = document.querySelector("#scorecard-row-template");
@@ -649,7 +1360,7 @@
         normalizedScore: 0,
       };
 
-      const clampRating = (value) => {
+      const clampScore = (value) => {
         const parsed = Number.parseInt(value, 10);
         if (Number.isNaN(parsed)) {
           return 1;
@@ -657,8 +1368,21 @@
         return Math.min(10, Math.max(1, parsed));
       };
 
+      const clampWeight = (value) => {
+        const parsed = Number.parseInt(value, 10);
+        if (Number.isNaN(parsed)) {
+          return 5;
+        }
+        return Math.min(10, Math.max(1, parsed));
+      };
+
       const formatNumber = (value) =>
         Number.isInteger(value) ? String(value) : value.toFixed(1);
+
+      const scoreRows = () => Array.from(tableBody.querySelectorAll(".score-row"));
+
+      const normalizeQuestion = (question) =>
+        String(question || "").trim().replace(/\s+/g, " ");
 
       const sanitizeFilenamePart = (value) =>
         value
@@ -671,17 +1395,62 @@
         statusMessage.textContent = message;
       };
 
+      const isNotApplicable = (row) =>
+        row.querySelector(".na-input").checked;
+
+      const updateRowControls = (row) => {
+        const notesRow = row.nextElementSibling;
+        const notApplicable = isNotApplicable(row);
+        const weightInput = row.querySelector(".weight-input");
+        const scoreInput = row.querySelector(".score-input");
+
+        if (notApplicable) {
+          if (!row.dataset.previousWeight && Number(weightInput.value) > 0) {
+            row.dataset.previousWeight = String(clampWeight(weightInput.value));
+          }
+
+          weightInput.value = 0;
+          weightInput.disabled = true;
+          scoreInput.disabled = true;
+          row.classList.add("is-na");
+          notesRow?.classList.add("is-na");
+        } else {
+          weightInput.disabled = false;
+          scoreInput.disabled = false;
+          row.classList.remove("is-na");
+          notesRow?.classList.remove("is-na");
+
+          if (Number(weightInput.value) < 1) {
+            weightInput.value = row.dataset.previousWeight || 5;
+          }
+
+          weightInput.value = clampWeight(weightInput.value);
+          scoreInput.value = clampScore(scoreInput.value);
+          row.dataset.previousWeight = weightInput.value;
+        }
+
+        row.querySelector(".weight-value").textContent = weightInput.value;
+        row.querySelector(".score-value").textContent = scoreInput.value;
+      };
+
       const calculateTotals = () => {
         let earned = 0;
         let available = 0;
 
-        tableBody.querySelectorAll("tr").forEach((row) => {
-          const weight = clampRating(row.querySelector(".weight-input").value);
-          const score = clampRating(row.querySelector(".score-input").value);
+        scoreRows().forEach((row) => {
+          updateRowControls(row);
+
+          if (isNotApplicable(row)) {
+            row.querySelector(".points-value").textContent = "N/A";
+            return;
+          }
+
+          const weight = clampWeight(row.querySelector(".weight-input").value);
+          const score = clampScore(row.querySelector(".score-input").value);
           const rowPoints = weight * score;
           const rowAvailable = weight * 10;
 
-          row.querySelector(".points-cell").textContent =
+          row.querySelector(".points-value").textContent =
             `${rowPoints} / ${rowAvailable}`;
 
           earned += rowPoints;
@@ -717,13 +1486,20 @@
           earned: currentTotals.earned,
           available: currentTotals.available,
         },
-        answers: Array.from(tableBody.querySelectorAll("tr")).map(
+        answers: scoreRows().map(
           (row, index) => ({
             index,
+            category: questions[index]?.category || "",
             question: questions[index]?.question || "",
-            weight: clampRating(row.querySelector(".weight-input").value),
-            score: clampRating(row.querySelector(".score-input").value),
-            notes: row.querySelector(".notes-input").value.trim(),
+            notApplicable: isNotApplicable(row),
+            weight: isNotApplicable(row)
+              ? 0
+              : clampWeight(row.querySelector(".weight-input").value),
+            score: clampScore(row.querySelector(".score-input").value),
+            notes:
+              row.nextElementSibling
+                ?.querySelector(".notes-input")
+                ?.value.trim() || "",
           }),
         ),
       });
@@ -758,21 +1534,42 @@
         deviceModel.value = data.device?.model || "";
 
         if (Array.isArray(data.answers)) {
-          const rows = Array.from(tableBody.querySelectorAll("tr"));
+          const rows = scoreRows();
+          const rowsByQuestion = new Map(
+            questions.map((question, index) => [
+              normalizeQuestion(question.question),
+              rows[index],
+            ]),
+          );
 
           data.answers.forEach((answer, fallbackIndex) => {
             const answerIndex = Number.isInteger(answer.index)
               ? answer.index
               : fallbackIndex;
-            const row = rows[answerIndex];
+            const row =
+              rowsByQuestion.get(normalizeQuestion(answer.question)) ||
+              rows[answerIndex];
 
             if (!row) {
               return;
             }
 
-            row.querySelector(".weight-input").value = clampRating(answer.weight);
-            row.querySelector(".score-input").value = clampRating(answer.score);
-            row.querySelector(".notes-input").value = answer.notes || "";
+            const notApplicable =
+              Boolean(answer.notApplicable) || Number(answer.weight) === 0;
+            const weightInput = row.querySelector(".weight-input");
+
+            row.querySelector(".na-input").checked = notApplicable;
+            weightInput.value = notApplicable ? 0 : clampWeight(answer.weight);
+            row.dataset.previousWeight = notApplicable
+              ? "5"
+              : String(clampWeight(answer.weight));
+            row.querySelector(".score-input").value = clampScore(answer.score);
+
+            const notesInput =
+              row.nextElementSibling?.querySelector(".notes-input");
+            if (notesInput) {
+              notesInput.value = answer.notes || "";
+            }
           });
         }
 
@@ -790,10 +1587,31 @@
         setStatus(`Loaded ${file.name}.`);
       };
 
+      const appendCategoryRow = (category) => {
+        const row = document.createElement("tr");
+        const header = document.createElement("th");
+
+        row.className = "category-row";
+        header.scope = "rowgroup";
+        header.colSpan = 6;
+        header.textContent = category;
+        row.appendChild(header);
+        tableBody.appendChild(row);
+      };
+
+      let currentCategory = "";
+
       questions.forEach((item, index) => {
+        const category = item.category || "General";
+        if (category !== currentCategory) {
+          appendCategoryRow(category);
+          currentCategory = category;
+        }
+
         const row = template.content.cloneNode(true);
-        const tableRow = row.querySelector("tr");
+        const tableRow = row.querySelector(".score-row");
         const rowNumber = index + 1;
+        const naId = `na-${rowNumber}`;
         const weightId = `weight-${rowNumber}`;
         const scoreId = `score-${rowNumber}`;
         const notesId = `notes-${rowNumber}`;
@@ -801,28 +1619,48 @@
         row.querySelector(".number-cell").textContent = rowNumber;
         row.querySelector(".question-cell").textContent = item.question;
 
-        const weightLabel = row.querySelector(".input-cell:nth-of-type(3) label");
+        const naInput = row.querySelector(".na-input");
+        naInput.id = naId;
+
+        const weightLabel = row.querySelector(".weight-label");
         const weightInput = row.querySelector(".weight-input");
         weightLabel.setAttribute("for", weightId);
         weightLabel.textContent = `Weight for question ${rowNumber}`;
         weightInput.id = weightId;
 
-        const scoreLabel = row.querySelector(".input-cell:nth-of-type(4) label");
+        const scoreLabel = row.querySelector(".score-label-input");
         const scoreInput = row.querySelector(".score-input");
         scoreLabel.setAttribute("for", scoreId);
         scoreLabel.textContent = `Score for question ${rowNumber}`;
         scoreInput.id = scoreId;
 
-        const notesLabel = row.querySelector(".notes-cell label");
+        const notesLabel = row.querySelector(".notes-label");
         const notesInput = row.querySelector(".notes-input");
         notesLabel.setAttribute("for", notesId);
         notesLabel.textContent = `Notes for question ${rowNumber}`;
         notesInput.id = notesId;
-        notesInput.placeholder = "Documentation link or explanation";
 
         tableRow.addEventListener("input", (event) => {
-          if (event.target.matches('input[type="number"]')) {
-            event.target.value = clampRating(event.target.value);
+          if (event.target.matches(".weight-input")) {
+            event.target.value = clampWeight(event.target.value);
+            tableRow.dataset.previousWeight = event.target.value;
+            calculateTotals();
+          }
+
+          if (event.target.matches(".score-input")) {
+            event.target.value = clampScore(event.target.value);
+            calculateTotals();
+          }
+        });
+
+        tableRow.addEventListener("change", (event) => {
+          if (event.target.matches(".na-input")) {
+            if (event.target.checked) {
+              tableRow.dataset.previousWeight = String(
+                clampWeight(weightInput.value),
+              );
+            }
+
             calculateTotals();
           }
         });
