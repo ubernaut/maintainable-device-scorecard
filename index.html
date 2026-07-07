@@ -149,11 +149,6 @@
         font-family: var(--font-dark);
       }
 
-      body.light main,
-      body.light dialog {
-        font-family: var(--font-light-ui);
-      }
-
       body.dark.crt.crt-active::after,
       body.dark.crt.is-loading::after {
         position: fixed;
@@ -551,10 +546,13 @@
         place-items: center;
         border-radius: 50%;
         padding: 0;
-        font-family: Arial, Helvetica, sans-serif;
         font-size: 0.95rem;
         font-weight: 700;
         line-height: 1;
+      }
+
+      body.dark .question-help-button {
+        font-family: Arial, Helvetica, sans-serif;
       }
 
       .na-cell {
