@@ -12,6 +12,10 @@ if there is interest I might develop this into some kind of a wiki (which is why
 
 Ultimately it's my hope that if enough people considered these questions when making a technology purchase more manufacturers would care and we could make the world a better place through culture and demand rather than heavy handed and ill conceived regulation. 
 
+## Static website
+
+The scorecard website is built from `index.html` and `questions.js`. Run `npm run build` to copy the static site into `docs/` for GitHub Pages. Configure GitHub Pages to serve from the repository's `docs` folder.
+
 ## questions:
 
 Is there an open or available API with documentation for end user use?
