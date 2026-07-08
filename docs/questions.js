@@ -336,3 +336,155 @@ window.scorecardQuestions = [
     },
   },
 ];
+
+window.scorecardAdvancedQuestions = [
+  {
+    category: "Security, Recovery & Auditability",
+    question:
+      "Does the device verify signed firmware and boot only trusted software?",
+    help: {
+      why:
+        "Signed firmware and verified boot help prevent unauthorized or corrupted software from becoming a persistent maintenance and security problem. They also make update failures easier to reason about.",
+      matters:
+        "This matters most for networked devices, devices with privileged access, regulated environments, or any deployment where compromise would be difficult to detect later.",
+      mayNotMatter:
+        "It may matter less for isolated, low-risk devices that can be physically inspected, wiped, or replaced cheaply if tampering is suspected.",
+    },
+  },
+  {
+    category: "Security, Recovery & Auditability",
+    question:
+      "Is there a documented factory reset, recovery, or debricking process that restores the device without vendor intervention?",
+    help: {
+      why:
+        "A documented recovery path keeps a bad update, lost password, or failed configuration from permanently stranding hardware. It also reduces dependence on vendor service availability.",
+      matters:
+        "This matters most for remote devices, expensive hardware, field deployments, or systems that must be recovered quickly after mistakes or failed updates.",
+      mayNotMatter:
+        "It may matter less when devices are inexpensive, easy to replace, and do not store configuration or data that needs to be recovered.",
+    },
+  },
+  {
+    category: "Security, Recovery & Auditability",
+    question:
+      "Can the device produce local logs, diagnostics, and health data that can be exported without a cloud account?",
+    help: {
+      why:
+        "Local diagnostics make troubleshooting possible after network failures, account problems, vendor outages, or staff turnover. Exportable logs also make incidents easier to review later.",
+      matters:
+        "This matters most for critical operations, remote sites, regulated environments, or devices that are difficult to inspect physically.",
+      mayNotMatter:
+        "It may matter less for simple devices where failure is obvious, logging would not change the repair path, and replacement is cheap.",
+    },
+  },
+  {
+    category: "Security, Recovery & Auditability",
+    question:
+      "Can the current configuration and operational state be backed up and restored by the user?",
+    help: {
+      why:
+        "Backup and restore shortens replacement and disaster recovery work. It also preserves operational knowledge when a device fails or must be migrated.",
+      matters:
+        "This matters most when configuration is complex, devices are deployed in fleets, or downtime during replacement would be costly.",
+      mayNotMatter:
+        "It may matter less for devices with trivial setup, no persistent state, or configuration that is already fully managed elsewhere.",
+    },
+  },
+  {
+    category: "Security, Recovery & Auditability",
+    question:
+      "Does the device support role-based access control, MFA, and administrative audit logs?",
+    help: {
+      why:
+        "Granular access controls and audit logs make administration sustainable as teams grow and staff change. They reduce reliance on shared passwords and undocumented privileged access.",
+      matters:
+        "This matters most for multi-admin environments, sensitive systems, compliance requirements, and devices exposed to broader networks.",
+      mayNotMatter:
+        "It may matter less for single-user, isolated, low-impact devices where local physical control is the primary security boundary.",
+    },
+  },
+  {
+    category: "Security, Recovery & Auditability",
+    question:
+      "Can certificates, keys, tokens, and other secrets be rotated without replacing the device or rebuilding it from scratch?",
+    help: {
+      why:
+        "Secret rotation is a normal part of long-term operation after staff changes, certificate expiry, policy changes, or suspected compromise. Devices that cannot rotate secrets become brittle over time.",
+      matters:
+        "This matters most for devices using TLS, APIs, VPNs, cloud connections, service accounts, or other long-lived credentials.",
+      mayNotMatter:
+        "It may matter less for devices with no credentials, no network exposure, and no persistent trust relationship with other systems.",
+    },
+  },
+  {
+    category: "Data Governance & Offline Resilience",
+    question:
+      "Does the device have documented offline or degraded-operation behavior when networks, vendor services, or dependencies are unavailable?",
+    help: {
+      why:
+        "Documented degraded behavior lets maintainers plan for outages instead of discovering failure modes during an incident. It also clarifies whether the device can keep doing its core job without dependencies.",
+      matters:
+        "This matters most for critical functions, unreliable networks, restricted sites, and devices expected to remain useful after vendor outages.",
+      mayNotMatter:
+        "It may matter less for convenience features or devices whose primary function is intentionally online and easy to replace.",
+    },
+  },
+  {
+    category: "Data Governance & Offline Resilience",
+    question:
+      "Can users control data retention, deletion, export, and ownership for data stored on or produced by the device?",
+    help: {
+      why:
+        "Data controls affect privacy, compliance, migrations, and decommissioning. Long-lived devices need a clear path for moving, deleting, or proving ownership of accumulated data.",
+      matters:
+        "This matters most when the device stores personal, operational, regulated, proprietary, or historically important data.",
+      mayNotMatter:
+        "It may matter less for devices that produce no durable data or only store short-lived, nonsensitive state.",
+    },
+  },
+  {
+    category: "Parts & Interoperability Resilience",
+    question:
+      "Are spare parts, consumables, batteries, and replacement assemblies available with a clear end-of-life commitment?",
+    help: {
+      why:
+        "Parts availability determines whether a device can be repaired after common wear or failure. A clear end-of-life commitment supports spares planning before the supply disappears.",
+      matters:
+        "This matters most for remote deployments, expensive hardware, batteries, moving parts, harsh environments, or devices expected to operate for many years.",
+      mayNotMatter:
+        "It may matter less for low-cost devices where full replacement is planned and acceptable.",
+    },
+  },
+  {
+    category: "Parts & Interoperability Resilience",
+    question:
+      "Does the device use standards-based protocols, connectors, power supplies, mounts, or media that can be replaced without vendor-specific parts?",
+    help: {
+      why:
+        "Standard interfaces make future replacement, integration, and repair easier. Vendor-specific parts can turn simple failures into procurement or compatibility problems years later.",
+      matters:
+        "This matters most when devices are installed in the field, integrated with other systems, or expected to survive multiple generations of surrounding equipment.",
+      mayNotMatter:
+        "It may matter less for self-contained devices with short planned lifetimes or strong vendor support for all proprietary accessories.",
+    },
+  },
+];
+
+window.scorecardBasicQuestionNumbers = [1, 2, 6, 8, 9, 10, 12, 13, 14, 18, 19, 20];
+
+window.scorecardQuestionSets = {
+  basic: {
+    label: "Basic",
+    description:
+      "A shorter pass over the questions most likely to affect ordinary long-term device maintenance.",
+    questions: window.scorecardBasicQuestionNumbers.map(
+      (questionNumber) => window.scorecardQuestions[questionNumber - 1],
+    ),
+  },
+  advanced: {
+    label: "Advanced",
+    description:
+      "The full scorecard, including deeper security, recovery, data governance, and parts resilience checks.",
+    questions: window.scorecardQuestions.concat(window.scorecardAdvancedQuestions),
+  },
+};

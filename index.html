@@ -381,6 +381,51 @@
         font-size: 0.92rem;
       }
 
+      .mode-panel {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+
+      .tab-list {
+        display: inline-grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: min(420px, 100%);
+        overflow: hidden;
+        border: 1px solid var(--border-strong);
+        border-radius: 8px;
+        background: var(--surface);
+      }
+
+      .tab-button {
+        min-height: 44px;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        color: var(--text);
+        padding: 8px 16px;
+      }
+
+      .tab-button + .tab-button {
+        border-left: 1px solid var(--border-strong);
+      }
+
+      .tab-button[aria-selected="true"] {
+        background: var(--accent);
+        color: var(--background);
+      }
+
+      .tab-button[aria-selected="false"]:hover {
+        background: var(--surface-muted);
+      }
+
+      .tab-description {
+        max-width: 760px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
       .score-panel {
         display: grid;
         grid-template-columns: 1fr auto;
@@ -915,6 +960,10 @@
           flex: 1 1 150px;
         }
 
+        .tab-list {
+          width: 100%;
+        }
+
         .meter {
           width: 100%;
           min-width: 0;
@@ -1169,49 +1218,83 @@
         <p class="status-message" id="status-message" aria-live="polite"></p>
       </section>
 
-      <section class="score-panel" aria-labelledby="score-title">
-        <div>
-          <p class="score-label" id="score-title">Weighted score</p>
-          <div class="score-total" aria-live="polite">
-            <span id="total-score">50.0</span>
-            <span class="score-scale">/ 100</span>
-          </div>
-          <p class="score-detail">
-            <span id="earned-points">0</span> weighted points from
-            <span id="available-points">0</span> available.
-          </p>
+      <section class="mode-panel" aria-label="Scorecard mode">
+        <div class="tab-list" role="tablist" aria-label="Scorecard mode">
+          <button
+            type="button"
+            id="scorecard-tab-basic"
+            class="tab-button"
+            role="tab"
+            aria-selected="true"
+            aria-controls="scorecard-tab-panel"
+            data-question-set="basic"
+          >
+            Basic
+          </button>
+          <button
+            type="button"
+            id="scorecard-tab-advanced"
+            class="tab-button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="scorecard-tab-panel"
+            data-question-set="advanced"
+          >
+            Advanced
+          </button>
         </div>
-        <div class="meter" aria-hidden="true">
-          <div class="meter-track">
-            <div class="meter-fill" id="score-meter"></div>
-          </div>
-        </div>
+        <p class="tab-description" id="question-set-description"></p>
       </section>
 
-      <div class="table-wrap">
-        <table>
-          <caption>
-            Use N/A to remove a question from scoring. Weights and scores use
-            whole-number sliders.
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col" class="number-cell">#</th>
-              <th scope="col">Question</th>
-              <th scope="col">N/A</th>
-              <th scope="col">Weight</th>
-              <th scope="col">Score</th>
-              <th scope="col">Weighted Points</th>
-            </tr>
-          </thead>
-          <tbody id="scorecard-body"></tbody>
-          <tfoot>
-            <tr>
-              <th scope="row" colspan="5">Total weighted score</th>
-              <td class="footer-total" id="footer-score">50.0 / 100</td>
-            </tr>
-          </tfoot>
-        </table>
+      <div
+        id="scorecard-tab-panel"
+        role="tabpanel"
+        aria-labelledby="scorecard-tab-basic"
+      >
+        <section class="score-panel" aria-labelledby="score-title">
+          <div>
+            <p class="score-label" id="score-title">Weighted score</p>
+            <div class="score-total" aria-live="polite">
+              <span id="total-score">50.0</span>
+              <span class="score-scale">/ 100</span>
+            </div>
+            <p class="score-detail">
+              <span id="earned-points">0</span> weighted points from
+              <span id="available-points">0</span> available.
+            </p>
+          </div>
+          <div class="meter" aria-hidden="true">
+            <div class="meter-track">
+              <div class="meter-fill" id="score-meter"></div>
+            </div>
+          </div>
+        </section>
+
+        <div class="table-wrap">
+          <table>
+            <caption>
+              Use N/A to remove a question from scoring. Weights and scores use
+              whole-number sliders.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col" class="number-cell">#</th>
+                <th scope="col">Question</th>
+                <th scope="col">N/A</th>
+                <th scope="col">Weight</th>
+                <th scope="col">Score</th>
+                <th scope="col">Weighted Points</th>
+              </tr>
+            </thead>
+            <tbody id="scorecard-body"></tbody>
+            <tfoot>
+              <tr>
+                <th scope="row" colspan="5">Total weighted score</th>
+                <td class="footer-total" id="footer-score">50.0 / 100</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
       </div>
     </main>
 
@@ -1583,9 +1666,31 @@
         passive: true,
       });
 
-      const questions = window.scorecardQuestions || [];
+      const fallbackQuestions = window.scorecardQuestions || [];
+      const rawQuestionSets = window.scorecardQuestionSets || {
+        advanced: {
+          label: "Advanced",
+          description: "The full maintainability scorecard.",
+          questions: fallbackQuestions,
+        },
+      };
+      const questionSets = Object.entries(rawQuestionSets).map(
+        ([id, set]) => ({
+          id,
+          label: set.label || id,
+          description: set.description || "",
+          questions: Array.isArray(set.questions) ? set.questions : [],
+        }),
+      );
       const tableBody = document.querySelector("#scorecard-body");
       const template = document.querySelector("#scorecard-row-template");
+      const questionSetButtons = Array.from(
+        document.querySelectorAll("[data-question-set]"),
+      );
+      const questionSetDescription = document.querySelector(
+        "#question-set-description",
+      );
+      const questionSetPanel = document.querySelector("#scorecard-tab-panel");
       const totalScore = document.querySelector("#total-score");
       const footerScore = document.querySelector("#footer-score");
       const earnedPoints = document.querySelector("#earned-points");
@@ -1621,6 +1726,10 @@
         available: 0,
         normalizedScore: 0,
       };
+      let activeQuestionSet =
+        questionSets.find((set) => set.id === "basic") || questionSets[0];
+      let questions = activeQuestionSet?.questions || [];
+      const answersByQuestion = new Map();
       const categoryDescriptions = {
         "Configuration & Operations":
           "Setup, provisioning, recovery, and day-to-day administration paths that keep devices manageable over time.",
@@ -1630,6 +1739,12 @@
           "Patchability, licensing, update access, and vendor support expectations across the device service life.",
         "Hardware, Supply Chain & Documentation":
           "Repairability, sourcing confidence, hardware transparency, reliability planning, and transferable documentation.",
+        "Security, Recovery & Auditability":
+          "Integrity, access control, diagnostics, backup, and recovery paths for devices that must remain trustworthy.",
+        "Data Governance & Offline Resilience":
+          "Data ownership, retention, export, and predictable behavior when networks or services are unavailable.",
+        "Parts & Interoperability Resilience":
+          "Replaceable parts and standards-based interfaces that reduce future sourcing and compatibility risk.",
       };
 
       const clampScore = (value) => {
@@ -1655,6 +1770,103 @@
 
       const normalizeQuestion = (question) =>
         String(question || "").trim().replace(/\s+/g, " ");
+
+      const questionKey = (question) =>
+        normalizeQuestion(
+          typeof question === "string" ? question : question?.question,
+        );
+
+      const defaultAnswerForQuestion = (question, index = 0) => ({
+        index,
+        category: question?.category || "",
+        question: question?.question || "",
+        notApplicable: false,
+        weight: 5,
+        score: 5,
+        notes: "",
+        previousWeight: "5",
+      });
+
+      const normalizeAnswer = (answer, fallbackQuestion, fallbackIndex = 0) => {
+        const notApplicable =
+          Boolean(answer?.notApplicable) || Number(answer?.weight) === 0;
+        const fallback = defaultAnswerForQuestion(
+          fallbackQuestion,
+          fallbackIndex,
+        );
+        const weight = notApplicable ? 0 : clampWeight(answer?.weight ?? 5);
+        const previousWeight = notApplicable
+          ? String(clampWeight(answer?.previousWeight || 5))
+          : String(weight);
+
+        return {
+          index: Number.isInteger(answer?.index) ? answer.index : fallback.index,
+          category: answer?.category || fallback.category,
+          question: answer?.question || fallback.question,
+          notApplicable,
+          weight,
+          score: clampScore(answer?.score ?? 5),
+          notes: answer?.notes || "",
+          previousWeight,
+        };
+      };
+
+      const readAnswerFromRow = (row, question, index) => {
+        const notApplicable = isNotApplicable(row);
+        const weightInput = row.querySelector(".weight-input");
+
+        return {
+          index,
+          category: question?.category || "",
+          question: question?.question || "",
+          notApplicable,
+          weight: notApplicable ? 0 : clampWeight(weightInput.value),
+          score: clampScore(row.querySelector(".score-input").value),
+          notes:
+            row.nextElementSibling
+              ?.querySelector(".notes-input")
+              ?.value.trim() || "",
+          previousWeight: row.dataset.previousWeight || weightInput.value || "5",
+        };
+      };
+
+      const persistVisibleAnswers = () => {
+        scoreRows().forEach((row, index) => {
+          const question = questions[index];
+          if (!question) {
+            return;
+          }
+
+          answersByQuestion.set(
+            questionKey(question),
+            readAnswerFromRow(row, question, index),
+          );
+        });
+      };
+
+      const storeAnswer = (answer, fallbackQuestion, fallbackIndex = 0) => {
+        const key = questionKey(answer?.question || fallbackQuestion);
+        if (!key) {
+          return;
+        }
+
+        answersByQuestion.set(
+          key,
+          normalizeAnswer(answer, fallbackQuestion, fallbackIndex),
+        );
+      };
+
+      const answerForQuestion = (question, index) =>
+        answersByQuestion.get(questionKey(question)) ||
+        defaultAnswerForQuestion(question, index);
+
+      const collectAnswersForQuestions = (questionList) =>
+        questionList.map((question, index) => ({
+          ...answerForQuestion(question, index),
+          index,
+          category: question?.category || "",
+          question: question?.question || "",
+        }));
 
       const sanitizeFilenamePart = (value) =>
         value
@@ -1766,36 +1978,31 @@
         };
       };
 
-      const collectScorecardData = () => ({
-        schema: "maintainable-device-scorecard",
-        version: 1,
-        savedAt: new Date().toISOString(),
-        device: {
-          make: deviceMake.value.trim(),
-          model: deviceModel.value.trim(),
-        },
-        total: {
-          score: Number(currentTotals.normalizedScore.toFixed(1)),
-          earned: currentTotals.earned,
-          available: currentTotals.available,
-        },
-        answers: scoreRows().map(
-          (row, index) => ({
-            index,
-            category: questions[index]?.category || "",
-            question: questions[index]?.question || "",
-            notApplicable: isNotApplicable(row),
-            weight: isNotApplicable(row)
-              ? 0
-              : clampWeight(row.querySelector(".weight-input").value),
-            score: clampScore(row.querySelector(".score-input").value),
-            notes:
-              row.nextElementSibling
-                ?.querySelector(".notes-input")
-                ?.value.trim() || "",
-          }),
-        ),
-      });
+      const collectScorecardData = () => {
+        persistVisibleAnswers();
+
+        return {
+          schema: "maintainable-device-scorecard",
+          version: 2,
+          savedAt: new Date().toISOString(),
+          activeQuestionSet: activeQuestionSet?.id || "",
+          device: {
+            make: deviceMake.value.trim(),
+            model: deviceModel.value.trim(),
+          },
+          total: {
+            score: Number(currentTotals.normalizedScore.toFixed(1)),
+            earned: currentTotals.earned,
+            available: currentTotals.available,
+          },
+          answers: collectAnswersForQuestions(questions),
+          questionSets: questionSets.map((set) => ({
+            id: set.id,
+            label: set.label,
+            answers: collectAnswersForQuestions(set.questions),
+          })),
+        };
+      };
 
       const saveScorecardJson = () => {
         const data = collectScorecardData();
@@ -1826,47 +2033,38 @@
         deviceMake.value = data.device?.make || "";
         deviceModel.value = data.device?.model || "";
 
-        if (Array.isArray(data.answers)) {
-          const rows = scoreRows();
-          const rowsByQuestion = new Map(
-            questions.map((question, index) => [
-              normalizeQuestion(question.question),
-              rows[index],
-            ]),
-          );
+        answersByQuestion.clear();
 
-          data.answers.forEach((answer, fallbackIndex) => {
-            const answerIndex = Number.isInteger(answer.index)
-              ? answer.index
-              : fallbackIndex;
-            const row =
-              rowsByQuestion.get(normalizeQuestion(answer.question)) ||
-              rows[answerIndex];
-
-            if (!row) {
-              return;
+        if (Array.isArray(data.questionSets)) {
+          data.questionSets.forEach((set) => {
+            if (Array.isArray(set.answers)) {
+              set.answers.forEach((answer, fallbackIndex) => {
+                storeAnswer(answer, null, fallbackIndex);
+              });
             }
-
-            const notApplicable =
-              Boolean(answer.notApplicable) || Number(answer.weight) === 0;
-            const weightInput = row.querySelector(".weight-input");
-
-            row.querySelector(".na-input").checked = notApplicable;
-            weightInput.value = notApplicable ? 0 : clampWeight(answer.weight);
-            row.dataset.previousWeight = notApplicable
-              ? "5"
-              : String(clampWeight(answer.weight));
-            row.querySelector(".score-input").value = clampScore(answer.score);
-
-            const notesInput =
-              row.nextElementSibling?.querySelector(".notes-input");
-            if (notesInput) {
-              notesInput.value = answer.notes || "";
+          });
+        } else if (data.questionSets && typeof data.questionSets === "object") {
+          Object.values(data.questionSets).forEach((set) => {
+            if (Array.isArray(set?.answers)) {
+              set.answers.forEach((answer, fallbackIndex) => {
+                storeAnswer(answer, null, fallbackIndex);
+              });
             }
           });
         }
 
-        calculateTotals();
+        if (Array.isArray(data.answers)) {
+          data.answers.forEach((answer, fallbackIndex) => {
+            storeAnswer(answer, questions[fallbackIndex], fallbackIndex);
+          });
+        }
+
+        const savedQuestionSet = questionSets.find(
+          (set) => set.id === data.activeQuestionSet || set.id === data.mode,
+        );
+        renderQuestionSet(savedQuestionSet || activeQuestionSet, {
+          preserve: false,
+        });
       };
 
       const loadScorecardJson = async (file) => {
@@ -1947,116 +2145,171 @@
         tableBody.appendChild(row);
       };
 
-      let currentCategory = "";
+      const updateQuestionSetTabs = () => {
+        questionSetButtons.forEach((button) => {
+          const selected = button.dataset.questionSet === activeQuestionSet?.id;
+          button.setAttribute("aria-selected", String(selected));
+        });
 
-      questions.forEach((item, index) => {
-        const category = item.category || "General";
-        if (category !== currentCategory) {
-          appendCategoryRow(category);
-          currentCategory = category;
+        const activeButton = questionSetButtons.find(
+          (button) => button.dataset.questionSet === activeQuestionSet?.id,
+        );
+        if (activeButton) {
+          questionSetPanel.setAttribute("aria-labelledby", activeButton.id);
         }
 
-        const row = template.content.cloneNode(true);
-        const tableRow = row.querySelector(".score-row");
-        const rowNumber = index + 1;
-        const naId = `na-${rowNumber}`;
-        const weightId = `weight-${rowNumber}`;
-        const scoreId = `score-${rowNumber}`;
-        const notesId = `notes-${rowNumber}`;
+        questionSetDescription.textContent = activeQuestionSet?.description || "";
+      };
 
-        row.querySelector(".number-cell").textContent = rowNumber;
-        renderQuestionText(row.querySelector(".question-text"), item.question);
+      const renderQuestionSet = (questionSet, options = {}) => {
+        if (!questionSet) {
+          return;
+        }
 
-        const helpButton = row.querySelector(".question-help-button");
-        helpButton.setAttribute(
-          "aria-label",
-          `Explain question ${rowNumber}: ${item.question}`,
-        );
-        helpButton.title = "Explain this question";
-        helpButton.addEventListener("click", () => {
-          openQuestionHelp(item);
-        });
+        if (options.preserve !== false) {
+          persistVisibleAnswers();
+        }
 
-        const naInput = row.querySelector(".na-input");
-        naInput.id = naId;
+        activeQuestionSet = questionSet;
+        questions = activeQuestionSet.questions;
+        tableBody.replaceChildren();
+        updateQuestionSetTabs();
 
-        const weightLabel = row.querySelector(".weight-label");
-        const weightInput = row.querySelector(".weight-input");
-        weightLabel.setAttribute("for", weightId);
-        weightLabel.textContent = `Weight for question ${rowNumber}`;
-        weightInput.id = weightId;
-        row
-          .querySelectorAll('.slider-step-button[data-target="weight"]')
-          .forEach((button) => {
-            button.setAttribute(
-              "aria-label",
-              `${button.dataset.step === "1" ? "Increase" : "Decrease"} weight for question ${rowNumber}`,
-            );
-          });
+        let currentCategory = "";
 
-        const scoreLabel = row.querySelector(".score-label-input");
-        const scoreInput = row.querySelector(".score-input");
-        scoreLabel.setAttribute("for", scoreId);
-        scoreLabel.textContent = `Score for question ${rowNumber}`;
-        scoreInput.id = scoreId;
-        row
-          .querySelectorAll('.slider-step-button[data-target="score"]')
-          .forEach((button) => {
-            button.setAttribute(
-              "aria-label",
-              `${button.dataset.step === "1" ? "Increase" : "Decrease"} score for question ${rowNumber}`,
-            );
-          });
-
-        const notesLabel = row.querySelector(".notes-label");
-        const notesInput = row.querySelector(".notes-input");
-        notesLabel.setAttribute("for", notesId);
-        notesLabel.textContent = `Notes for question ${rowNumber}`;
-        notesInput.id = notesId;
-
-        tableRow.addEventListener("input", (event) => {
-          if (event.target.matches(".weight-input")) {
-            event.target.value = clampWeight(event.target.value);
-            tableRow.dataset.previousWeight = event.target.value;
-            calculateTotals();
+        questions.forEach((item, index) => {
+          const category = item.category || "General";
+          if (category !== currentCategory) {
+            appendCategoryRow(category);
+            currentCategory = category;
           }
 
-          if (event.target.matches(".score-input")) {
-            event.target.value = clampScore(event.target.value);
-            calculateTotals();
-          }
-        });
+          const row = template.content.cloneNode(true);
+          const tableRow = row.querySelector(".score-row");
+          const rowNumber = index + 1;
+          const idPrefix = `${activeQuestionSet.id}-${rowNumber}`;
+          const naId = `na-${idPrefix}`;
+          const weightId = `weight-${idPrefix}`;
+          const scoreId = `score-${idPrefix}`;
+          const notesId = `notes-${idPrefix}`;
+          const answer = answerForQuestion(item, index);
 
-        tableRow.addEventListener("change", (event) => {
-          if (event.target.matches(".na-input")) {
-            if (event.target.checked) {
-              tableRow.dataset.previousWeight = String(
-                clampWeight(weightInput.value),
+          tableRow.dataset.questionKey = questionKey(item);
+          row.querySelector(".number-cell").textContent = rowNumber;
+          renderQuestionText(row.querySelector(".question-text"), item.question);
+
+          const helpButton = row.querySelector(".question-help-button");
+          helpButton.setAttribute(
+            "aria-label",
+            `Explain question ${rowNumber}: ${item.question}`,
+          );
+          helpButton.title = "Explain this question";
+          helpButton.addEventListener("click", () => {
+            openQuestionHelp(item);
+          });
+
+          const naInput = row.querySelector(".na-input");
+          naInput.id = naId;
+          naInput.checked = Boolean(answer.notApplicable);
+
+          const weightLabel = row.querySelector(".weight-label");
+          const weightInput = row.querySelector(".weight-input");
+          weightLabel.setAttribute("for", weightId);
+          weightLabel.textContent = `Weight for question ${rowNumber}`;
+          weightInput.id = weightId;
+          weightInput.value = answer.notApplicable ? 0 : clampWeight(answer.weight);
+          tableRow.dataset.previousWeight = answer.previousWeight || "5";
+          row
+            .querySelectorAll('.slider-step-button[data-target="weight"]')
+            .forEach((button) => {
+              button.setAttribute(
+                "aria-label",
+                `${button.dataset.step === "1" ? "Increase" : "Decrease"} weight for question ${rowNumber}`,
               );
+            });
+
+          const scoreLabel = row.querySelector(".score-label-input");
+          const scoreInput = row.querySelector(".score-input");
+          scoreLabel.setAttribute("for", scoreId);
+          scoreLabel.textContent = `Score for question ${rowNumber}`;
+          scoreInput.id = scoreId;
+          scoreInput.value = clampScore(answer.score);
+          row
+            .querySelectorAll('.slider-step-button[data-target="score"]')
+            .forEach((button) => {
+              button.setAttribute(
+                "aria-label",
+                `${button.dataset.step === "1" ? "Increase" : "Decrease"} score for question ${rowNumber}`,
+              );
+            });
+
+          const notesLabel = row.querySelector(".notes-label");
+          const notesInput = row.querySelector(".notes-input");
+          notesLabel.setAttribute("for", notesId);
+          notesLabel.textContent = `Notes for question ${rowNumber}`;
+          notesInput.id = notesId;
+          notesInput.value = answer.notes || "";
+
+          tableRow.addEventListener("input", (event) => {
+            if (event.target.matches(".weight-input")) {
+              event.target.value = clampWeight(event.target.value);
+              tableRow.dataset.previousWeight = event.target.value;
+              calculateTotals();
             }
 
-            calculateTotals();
-          }
+            if (event.target.matches(".score-input")) {
+              event.target.value = clampScore(event.target.value);
+              calculateTotals();
+            }
+          });
+
+          tableRow.addEventListener("change", (event) => {
+            if (event.target.matches(".na-input")) {
+              if (event.target.checked) {
+                tableRow.dataset.previousWeight = String(
+                  clampWeight(weightInput.value),
+                );
+              }
+
+              calculateTotals();
+            }
+          });
+
+          tableRow.addEventListener("click", (event) => {
+            const stepButton =
+              event.target instanceof Element
+                ? event.target.closest(".slider-step-button")
+                : null;
+            if (!stepButton || isNotApplicable(tableRow)) {
+              return;
+            }
+
+            stepSlider(
+              tableRow,
+              stepButton.dataset.target,
+              Number(stepButton.dataset.step),
+            );
+          });
+
+          tableBody.appendChild(row);
         });
 
-        tableRow.addEventListener("click", (event) => {
-          const stepButton =
-            event.target instanceof Element
-              ? event.target.closest(".slider-step-button")
-              : null;
-          if (!stepButton || isNotApplicable(tableRow)) {
-            return;
-          }
+        calculateTotals();
+      };
 
-          stepSlider(
-            tableRow,
-            stepButton.dataset.target,
-            Number(stepButton.dataset.step),
+      questionSetButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const questionSet = questionSets.find(
+            (set) => set.id === button.dataset.questionSet,
           );
-        });
 
-        tableBody.appendChild(row);
+          if (questionSet && questionSet.id !== activeQuestionSet?.id) {
+            renderQuestionSet(questionSet);
+          }
+        });
       });
+
+      renderQuestionSet(activeQuestionSet, { preserve: false });
 
       saveJsonButton.addEventListener("click", saveScorecardJson);
 
