@@ -1492,9 +1492,27 @@
       const INTERACTION_CRT_DURATION_MS = 200;
       const LOADER_SEGMENTS = 12;
       const colorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      const scorecardThemeParam = new URLSearchParams(window.location.search).get(
-        "theme",
-      );
+      const getRouteParam = (key) =>
+        new URLSearchParams(window.location.search).get(key);
+      const updateRouteParams = (updates, options = {}) => {
+        const url = new URL(window.location.href);
+
+        Object.entries(updates).forEach(([key, value]) => {
+          if (value) {
+            url.searchParams.set(key, value);
+          } else {
+            url.searchParams.delete(key);
+          }
+        });
+
+        if (url.toString() === window.location.href) {
+          return;
+        }
+
+        const method = options.push ? "pushState" : "replaceState";
+        window.history[method](window.history.state, "", url);
+      };
+      const scorecardThemeParam = getRouteParam("theme");
       const explicitScorecardTheme =
         scorecardThemeParam === "light" || scorecardThemeParam === "dark"
           ? scorecardThemeParam
@@ -1510,6 +1528,8 @@
       const getThemeIcon = () => document.getElementById("theme-icon");
       const getThemeToggleLabel = () =>
         document.getElementById("theme-toggle-label");
+      const currentTheme = () =>
+        getBody()?.classList.contains("dark") ? "dark" : "light";
 
       const updateThemeToggle = (theme) => {
         const toggleButton = getToggleButton();
@@ -1532,7 +1552,7 @@
         }
       };
 
-      const applyTheme = (theme) => {
+      const applyTheme = (theme, options = {}) => {
         const body = getBody();
         if (!body) {
           return;
@@ -1541,6 +1561,10 @@
         body.classList.remove("light", "dark");
         body.classList.add(theme);
         updateThemeToggle(theme);
+
+        if (options.updateRoute !== false) {
+          updateRouteParams({ theme });
+        }
       };
 
       const applyPreferredTheme = () => {
@@ -1682,6 +1706,12 @@
           questions: Array.isArray(set.questions) ? set.questions : [],
         }),
       );
+      const questionSetFromRoute = () =>
+        questionSets.find((set) => set.id === getRouteParam("mode"));
+      const defaultQuestionSet = () =>
+        questionSetFromRoute() ||
+        questionSets.find((set) => set.id === "basic") ||
+        questionSets[0];
       const tableBody = document.querySelector("#scorecard-body");
       const template = document.querySelector("#scorecard-row-template");
       const questionSetButtons = Array.from(
@@ -1726,8 +1756,7 @@
         available: 0,
         normalizedScore: 0,
       };
-      let activeQuestionSet =
-        questionSets.find((set) => set.id === "basic") || questionSets[0];
+      let activeQuestionSet = defaultQuestionSet();
       let questions = activeQuestionSet?.questions || [];
       const answersByQuestion = new Map();
       const categoryDescriptions = {
@@ -2161,6 +2190,16 @@
         questionSetDescription.textContent = activeQuestionSet?.description || "";
       };
 
+      const syncScorecardRoute = (options = {}) => {
+        updateRouteParams(
+          {
+            mode: activeQuestionSet?.id || "basic",
+            theme: currentTheme(),
+          },
+          options,
+        );
+      };
+
       const renderQuestionSet = (questionSet, options = {}) => {
         if (!questionSet) {
           return;
@@ -2174,6 +2213,10 @@
         questions = activeQuestionSet.questions;
         tableBody.replaceChildren();
         updateQuestionSetTabs();
+
+        if (options.updateRoute !== false) {
+          syncScorecardRoute({ push: Boolean(options.pushRoute) });
+        }
 
         let currentCategory = "";
 
@@ -2304,9 +2347,25 @@
           );
 
           if (questionSet && questionSet.id !== activeQuestionSet?.id) {
-            renderQuestionSet(questionSet);
+            renderQuestionSet(questionSet, { pushRoute: true });
           }
         });
+      });
+
+      window.addEventListener("popstate", () => {
+        const routeTheme = getRouteParam("theme");
+        const nextTheme =
+          routeTheme === "light" || routeTheme === "dark"
+            ? routeTheme
+            : "light";
+        const questionSet = defaultQuestionSet();
+
+        userSelectedTheme = true;
+        applyTheme(nextTheme, { updateRoute: false });
+
+        if (questionSet?.id !== activeQuestionSet?.id) {
+          renderQuestionSet(questionSet, { updateRoute: false });
+        }
       });
 
       renderQuestionSet(activeQuestionSet, { preserve: false });
